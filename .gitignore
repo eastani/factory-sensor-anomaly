@@ -66,6 +66,7 @@ data/external/
 # Model artifacts
 models/*.pkl
 models/*.joblib
+models/*.joblib.meta.json
 models/*.onnx
 mlruns/
 mlflow.db

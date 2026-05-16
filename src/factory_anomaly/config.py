@@ -8,6 +8,7 @@ testable and the production / docker-compose / pytest setups consistent.
 from __future__ import annotations
 
 from functools import lru_cache
+from pathlib import Path
 
 from pydantic import Field, PostgresDsn
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -47,3 +48,24 @@ class DatabaseSettings(BaseSettings):
 def get_database_settings() -> DatabaseSettings:
     """Cached accessor so settings are parsed once per process."""
     return DatabaseSettings()
+
+
+class ApiSettings(BaseSettings):
+    """API-layer settings, populated from ``API_*`` env vars."""
+
+    model_config = SettingsConfigDict(
+        env_prefix="API_",
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
+    model_path: Path = Field(default=Path("models/baseline.joblib"))
+    window_size: int = Field(default=20, ge=2)
+    log_level: str = Field(default="INFO")
+    machine_id_default: str = Field(default="pump-001")
+
+
+@lru_cache(maxsize=1)
+def get_api_settings() -> ApiSettings:
+    return ApiSettings()
