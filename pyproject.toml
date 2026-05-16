@@ -14,6 +14,10 @@ dependencies = [
   "alembic>=1.14",
   "pydantic>=2.9",
   "pydantic-settings>=2.6",
+  "numpy>=2.1",
+  "pandas>=2.2",
+  "scikit-learn>=1.5",
+  "joblib>=1.4",
 ]
 
 [dependency-groups]
@@ -24,6 +28,7 @@ dev = [
   "pytest-cov>=5.0",
   "pre-commit>=3.8",
   "testcontainers[postgres]>=4.8",
+  "pandas-stubs>=2.2",
 ]
 
 [build-system]
@@ -111,7 +116,7 @@ markers = [
 ]
 
 [[tool.mypy.overrides]]
-module = ["testcontainers.*"]
+module = ["testcontainers.*", "sklearn.*", "joblib.*"]
 ignore_missing_imports = true
 
 [tool.coverage.run]
