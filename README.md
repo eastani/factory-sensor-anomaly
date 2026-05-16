@@ -1,17 +1,21 @@
 # factory-sensor-anomaly
 
-> End-to-end anomaly detection service for factory sensor time-series — pressure, temperature, RPM, vibration. Built as a portfolio project demonstrating MLOps fundamentals on AWS / Azure.
+> Real-time anomaly detection platform for factory sensor streams — pressure, temperature, RPM, vibration. End-to-end: live ingest → Postgres → unsupervised model → Streamlit dashboard → cloud.
 
 [![CI](https://github.com/eastani/factory-sensor-anomaly/actions/workflows/ci.yml/badge.svg)](https://github.com/eastani/factory-sensor-anomaly/actions/workflows/ci.yml)
 [![Python](https://img.shields.io/badge/python-3.12-blue)](pyproject.toml)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
+> **Companion repo:** [eastani/predictive-maintenance-cmapss](https://github.com/eastani/predictive-maintenance-cmapss) benchmarks **supervised RUL regression** on batch CMAPSS turbofan data. **This** repo operationalises the other half of the IIoT problem: **unsupervised anomaly detection on a live stream**, with persistence, a dashboard, and cloud deploy. The two are designed to be read as a pair.
+
 ## Why this project
 
-Industrial machinery — pumps, compressors, motors — emits time-series signals (pressure, temperature, RPM, vibration). Operators want to know **before** something breaks. Classic threshold alarms are noisy; supervised models need failure labels that are expensive to collect. This project demonstrates an **unsupervised anomaly detection pipeline** running end-to-end with a real public dataset and a production-shaped architecture (containerised, CI/CD, cloud-deployed).
+Real factories don't get clean failure labels handed to them. Pumps, compressors, and motors emit pressure / temperature / RPM / vibration streams, and operators need to know **right now** when something is drifting — before a label or a failure exists. Threshold alarms are noisy; supervised models need labelled failures that take months or years to collect.
 
-The goal is not novel ML. The goal is to show that the author can take a model from a notebook to a live, observable, reproducible service.
+This project demonstrates an **unsupervised, streaming anomaly detection pipeline** running end-to-end with real public datasets and a production-shaped architecture (containerised, persisted, dashboarded, CI/CD'd, cloud-deployed).
+
+The goal is not novel ML. The goal is to show that the author can take an unsupervised model from a notebook to a **live, observable, reproducible service** that another engineer could pick up and extend.
 
 ## Architecture
 
@@ -79,7 +83,7 @@ make check              # lint + typecheck + test
 This project uses publicly available industrial sensor datasets. See [ADR-0001](docs/adr/0001-domain-and-dataset.md) for selection rationale.
 
 - **Primary:** [Kaggle Pump Sensor Data](https://www.kaggle.com/datasets/nphantawee/pump-sensor-data) — 52-channel pump telemetry with `NORMAL` / `BROKEN` / `RECOVERING` labels.
-- **Secondary:** [NASA IMS Bearings](https://data.nasa.gov/dataset/ims-bearings) — vibration run-to-failure for RPM/spectral features.
+- **Secondary:** [SKAB — Skoltech Anomaly Benchmark](https://github.com/waico/SKAB) — multi-sensor industrial water-circulation testbed with anomaly intervals labelled by domain experts. Public on GitHub, no registration friction, ideal for CI fixtures.
 
 Raw datasets are never committed; `data/` is gitignored.
 

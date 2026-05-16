@@ -22,15 +22,18 @@ Use **two datasets**, primary + secondary.
 - Label column `machine_status` with three classes: `NORMAL`, `BROKEN`, `RECOVERING`.
 - Kaggle open dataset (registration required to download — acceptable; downloaded once locally, never committed).
 
-### Secondary: [NASA IMS Bearings](https://data.nasa.gov/dataset/ims-bearings)
-- 4 bearings @ 2000 RPM, 6000 lbs load, 20 kHz accelerometer sampling, run-to-failure.
-- US Government public domain.
-- Used in Phase 1.5+ to demonstrate spectral feature engineering (FFT, envelope) on a true vibration signal — differentiates from typical tabular demos.
+### Secondary: [SKAB — Skoltech Anomaly Benchmark](https://github.com/waico/SKAB)
+- Multi-sensor industrial water-circulation testbed (rotating pump + tank): accelerometer, current, pressure, temperature, vibration on multiple axes.
+- Anomaly **intervals** labelled by domain experts (35 labelled anomaly events across 34 CSV files).
+- Hosted on GitHub directly — no registration, no manual download — which means it can be pulled from CI for integration tests.
+- License is GPL-3.0 on the data; analysis code in this repository remains MIT and does not redistribute the data.
+- Used in Phase 1.5+ to validate the model on a *second*, independent factory-style stream. The secondary dataset is deliberately a different machine type (water circulation vs. liquid pump) to test that the architecture is schema-agnostic.
 
 ## Alternatives considered
 
 | Option | Why not (now) |
 |--------|---------------|
+| [NASA IMS Bearings](https://data.nasa.gov/dataset/ims-bearings) | Strong dataset, but the companion repo [predictive-maintenance-cmapss](https://github.com/eastani/predictive-maintenance-cmapss) already uses a NASA rotating-machinery dataset (CMAPSS turbofan). Two "NASA + rotating equipment" projects on the same GitHub profile would dilute the narrative. SKAB gives an independent, industrially-realistic source. |
 | [CWRU Bearing Data Center](https://engineering.case.edu/bearingdatacenter) | Well-labelled but a [benchmark study by Smith & Randall (2015)](https://www.sciencedirect.com/science/article/abs/pii/S0888327015002034) shows some fault sizes are trivially separable; reporting 99%+ accuracy on CWRU is not a credible result. Reserved as a possible Phase 3 add-on with the harder 0.021"+ fault sizes. |
 | [MIMII (Hitachi sound)](https://zenodo.org/records/3384388) | Audio modality — strong dataset but does not match the "pressure/temp/RPM" framing for Phase 1. Candidate for Phase 3 multi-modal expansion. |
 | [UCI SECOM](https://archive.ics.uci.edu/ml/datasets/SECOM) | Severe 1:14 class imbalance + 591 features + heavy missingness — better as a *classification* demo than time-series anomaly detection. |
@@ -46,7 +49,7 @@ Use **two datasets**, primary + secondary.
 **Negative**
 - Pump dataset's `RECOVERING` class is genuinely ambiguous. Naive tutorials either drop it or merge into `NORMAL`, both of which inflate metrics. This project will **report results for both label collapsings** and explain the tradeoff in the model card.
 - Kaggle registration is a manual friction point for a first-time cloner. Solution: provide a synthetic data generator (sine + spike) as a zero-setup fallback for local development.
-- NASA IMS is ~6 GB raw — too large for CI. Subsampling + storage in object store (Phase 2) required.
+- SKAB is GPL-3.0 on the **data**; the analysis code in this repository remains MIT. The data is not redistributed — `scripts/download_data.sh` will fetch it directly from `waico/SKAB` at install time.
 
 ## Open questions
 
