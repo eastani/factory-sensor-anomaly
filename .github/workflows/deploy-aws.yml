@@ -1,8 +1,16 @@
 name: deploy-aws
 
+# NOTE: deliberately *not* on `push: main` until the AWS bootstrap stack has
+# been applied and the GitHub secrets below are populated. After bootstrap:
+# add `push:` back, or rely on workflow_dispatch.
+#
+# Required secrets:
+#   - AWS_DEPLOY_ROLE_ARN
+#   - TF_STATE_BUCKET
+#   - TF_STATE_LOCK_TABLE
+#   - BILLING_ALARM_EMAIL  (optional but recommended)
+
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
     inputs:
       image_tag:
