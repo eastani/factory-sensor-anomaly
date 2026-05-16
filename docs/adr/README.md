@@ -6,3 +6,4 @@ Lightweight ADRs in the [MADR](https://adr.github.io/madr/) style. Each captures
 |---|-------|--------|
 | [0001](0001-domain-and-dataset.md) | Domain selection & primary dataset | Accepted |
 | [0002](0002-tech-stack.md) | Core tech stack & ML approach | Accepted |
+| [0003](0003-inference-trigger.md) | Inference trigger strategy | Provisional |
