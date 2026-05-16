@@ -53,6 +53,9 @@ model-card:  ## (Re-)generate docs/model-cards/baseline.md from the latest artif
 eval-skab:  ## Download SKAB on first run and evaluate the baseline detector against it.
 	uv run python scripts/evaluate_skab.py
 
+demo-preview:  ## Re-render docs/assets/dashboard-preview.png.
+	uv run python scripts/render_demo_preview.py
+
 stack-up:  ## docker compose up the full stack (build + detach).
 	docker compose up -d --build
 
