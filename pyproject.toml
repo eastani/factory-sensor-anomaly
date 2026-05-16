@@ -8,7 +8,13 @@ license = { text = "MIT" }
 authors = [{ name = "Naoya Higashitani" }]
 keywords = ["anomaly-detection", "industrial-iot", "fastapi", "streamlit", "mlops"]
 
-dependencies = []
+dependencies = [
+  "sqlalchemy>=2.0.36",
+  "psycopg[binary]>=3.2",
+  "alembic>=1.14",
+  "pydantic>=2.9",
+  "pydantic-settings>=2.6",
+]
 
 [dependency-groups]
 dev = [
@@ -17,6 +23,7 @@ dev = [
   "pytest>=8.3",
   "pytest-cov>=5.0",
   "pre-commit>=3.8",
+  "testcontainers[postgres]>=4.8",
 ]
 
 [build-system]
@@ -75,7 +82,8 @@ disallow_untyped_defs = true
 disallow_incomplete_defs = true
 no_implicit_optional = true
 show_error_codes = true
-files = ["src", "tests"]
+files = ["src", "tests", "alembic"]
+exclude = ["alembic/versions/"]
 
 [[tool.mypy.overrides]]
 module = ["tests.*"]
@@ -93,12 +101,18 @@ addopts = [
   "--strict-config",
   "--cov=factory_anomaly",
   "--cov-report=term-missing",
-  "--cov-fail-under=70",
 ]
+# NOTE: --cov-fail-under is enforced in CI (.github/workflows/ci.yml) against
+# the full suite (unit + integration). Local subset runs (e.g. `make test-unit`
+# without Docker) intentionally do not enforce a threshold.
 markers = [
   "slow: marks tests as slow (deselect with '-m \"not slow\"')",
-  "integration: marks tests as integration (requires services running)",
+  "integration: marks tests as integration (spins up real services via testcontainers)",
 ]
+
+[[tool.mypy.overrides]]
+module = ["testcontainers.*"]
+ignore_missing_imports = true
 
 [tool.coverage.run]
 branch = true
