@@ -1,0 +1,6 @@
+# Copy to terraform.tfvars; tfvars is gitignored.
+
+subscription_id = "00000000-0000-0000-0000-000000000000"
+location        = "japaneast"
+project_name    = "factory-sensor-anomaly"
+image_tag       = "latest"

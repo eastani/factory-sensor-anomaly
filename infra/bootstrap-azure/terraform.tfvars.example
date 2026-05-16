@@ -1,0 +1,7 @@
+# Copy to terraform.tfvars; tfvars is gitignored.
+
+subscription_id            = "00000000-0000-0000-0000-000000000000"
+location                   = "japaneast"
+state_storage_account_name = "fsatfstate<random-suffix>"   # must be globally unique
+github_repository          = "eastani/factory-sensor-anomaly"
+allowed_branches           = ["main"]

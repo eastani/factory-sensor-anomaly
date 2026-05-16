@@ -1,0 +1,142 @@
+name: deploy-azure
+
+# Manual-trigger-only until infra/bootstrap-azure has been applied and the
+# six AZURE_* secrets below have been added.
+#
+# Required secrets:
+#   - AZURE_TENANT_ID
+#   - AZURE_SUBSCRIPTION_ID
+#   - AZURE_CLIENT_ID
+#   - AZURE_TFSTATE_RG
+#   - AZURE_TFSTATE_ACCOUNT
+#   - AZURE_TFSTATE_CONTAINER
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "ACR image tag to deploy (defaults to commit SHA)"
+        required: false
+        default: ""
+
+concurrency:
+  group: deploy-azure-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  TF_VERSION: "1.9.8"
+  PROJECT_NAME: factory-sensor-anomaly
+  ACR_NAME: factorysensoranomalyacr
+
+jobs:
+  build-and-push:
+    name: Build image and push to ACR
+    runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.tag.outputs.value }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Resolve image tag
+        id: tag
+        run: |
+          tag="${{ github.event.inputs.image_tag }}"
+          if [ -z "${tag}" ]; then
+            tag="${GITHUB_SHA::12}"
+          fi
+          echo "value=${tag}" >> "$GITHUB_OUTPUT"
+
+      - name: Log in to ACR
+        run: az acr login --name ${{ env.ACR_NAME }}
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ env.ACR_NAME }}.azurecr.io/${{ env.PROJECT_NAME }}:${{ steps.tag.outputs.value }}
+            ${{ env.ACR_NAME }}.azurecr.io/${{ env.PROJECT_NAME }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          provenance: false
+          platforms: linux/amd64
+
+  terraform:
+    name: terraform apply
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    defaults:
+      run:
+        working-directory: infra/azure
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: terraform init
+        env:
+          ARM_USE_AZUREAD: "true"
+          ARM_USE_OIDC: "true"
+          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+        run: |
+          terraform init \
+            -backend-config="resource_group_name=${{ secrets.AZURE_TFSTATE_RG }}" \
+            -backend-config="storage_account_name=${{ secrets.AZURE_TFSTATE_ACCOUNT }}" \
+            -backend-config="container_name=${{ secrets.AZURE_TFSTATE_CONTAINER }}"
+
+      - name: terraform fmt -check
+        run: terraform fmt -check -recursive ..
+
+      - name: terraform validate
+        run: terraform validate
+
+      - name: terraform apply
+        env:
+          ARM_USE_AZUREAD: "true"
+          ARM_USE_OIDC: "true"
+          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          TF_VAR_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          TF_VAR_image_tag: ${{ needs.build-and-push.outputs.image_tag }}
+        run: terraform apply -auto-approve
+
+      - name: Smoke test /healthz
+        run: |
+          url=$(terraform output -raw api_url)
+          echo "API URL: $url"
+          for i in $(seq 1 18); do
+            if curl -fsS "${url}/healthz" >/dev/null; then
+              echo "Service healthy"
+              curl -s "${url}/healthz" | tee /tmp/healthz.json
+              exit 0
+            fi
+            echo "attempt $i: not ready yet, sleeping 10s"
+            sleep 10
+          done
+          echo "Service did not become healthy in time" >&2
+          exit 1

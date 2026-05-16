@@ -1,0 +1,6 @@
+# Copy to backend.hcl and fill in real values.
+# Init with: terraform init -backend-config=backend.hcl
+
+resource_group_name  = "factory-sensor-anomaly-shared"
+storage_account_name = "fsatfstate<random-suffix>"
+container_name       = "tfstate"

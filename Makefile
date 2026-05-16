@@ -68,8 +68,14 @@ tf-fmt:  ## terraform fmt -recursive on infra/.
 tf-validate-aws:  ## terraform validate the AWS stack.
 	cd infra/aws && terraform validate
 
+tf-validate-azure:  ## terraform validate the Azure stack.
+	cd infra/azure && terraform validate
+
 cloud-down-aws:  ## terraform destroy the AWS app stack (DOES NOT touch the bootstrap stack).
 	cd infra/aws && terraform destroy
+
+cloud-down-azure:  ## terraform destroy the Azure app stack.
+	cd infra/azure && terraform destroy
 
 pre-commit-install:  ## Install pre-commit git hooks.
 	uv run pre-commit install

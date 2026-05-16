@@ -129,7 +129,7 @@ sequenceDiagram
 | 1.6 | MLOps polish — /metrics, model card, drift primitives, SKAB eval | ✅ done |
 | 1.7 | Multi-channel features + STL residual scoring (closes ADR-0002) | 📋 planned |
 | 2A | IaC (Terraform) + OIDC-only CI/CD + AWS App Runner deploy | ✅ code in place ([ADR-0005](docs/adr/0005-cloud-architecture.md)) |
-| 2B | Azure Container Apps parallel deployment | 📋 next |
+| 2B | Azure Container Apps parallel deployment (scale-to-zero) | ✅ code in place |
 | 3  | Image-based anomaly microservice (PyTorch + async queue) | 📋 planned |
 | 4  | Demo polish — live URL, demo video, public Grafana board | 📋 partial |
 
@@ -179,16 +179,14 @@ make cloud-down-aws              # terraform destroy the AWS app stack
 make help                        # all targets with descriptions
 ```
 
-### Deploy to AWS
+### Deploy
 
-See [`infra/README.md`](infra/README.md) for the **root-user safety warning** and step-by-step setup. Summary:
+| Cloud | Setup guide | Cost (idle) | Workflow |
+|-------|-------------|-------------|----------|
+| AWS (primary) | [`infra/README.md`](infra/README.md) — **read the root-user safety warning** | ~$40/mo (App Runner $25 + RDS $13) | [`deploy-aws.yml`](.github/workflows/deploy-aws.yml) |
+| Azure (secondary) | [`infra/azure/README.md`](infra/azure/README.md) | ~$17/mo (Postgres $12 + ACR $5; Container Apps scales to 0) | [`deploy-azure.yml`](.github/workflows/deploy-azure.yml) |
 
-1. Lock down the AWS root user (MFA, no access keys) and create an admin IAM user.
-2. `cd infra/bootstrap-aws && terraform apply` — one-time setup creates the OIDC provider, state backend, and GitHub deploy role.
-3. Paste the role ARN into the GitHub secret `AWS_DEPLOY_ROLE_ARN`; set `TF_STATE_BUCKET`, `TF_STATE_LOCK_TABLE`, `BILLING_ALARM_EMAIL`.
-4. Push to `main` — [`.github/workflows/deploy-aws.yml`](.github/workflows/deploy-aws.yml) builds, pushes to ECR, runs `terraform apply`, and smoke-tests `/healthz`.
-
-Estimated steady-state cost: **~$40/month** (App Runner $25 + RDS `db.t4g.micro` $13 + ECR negligible). Tear down with `make cloud-down-aws` when the demo is over.
+Both clouds use OIDC federation — no static credentials in CI. See [ADR-0005](docs/adr/0005-cloud-architecture.md) for the architecture choice. Tear down with `make cloud-down-aws` / `make cloud-down-azure`.
 
 ## Repository tour
 
