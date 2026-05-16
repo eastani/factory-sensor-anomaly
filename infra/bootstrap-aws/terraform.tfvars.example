@@ -1,0 +1,6 @@
+# Copy to terraform.tfvars and fill in real values; tfvars is gitignored.
+
+aws_region          = "ap-northeast-1"
+state_bucket_name   = "factory-sensor-anomaly-tfstate-<YOUR-ACCOUNT-ID>"
+github_repository   = "eastani/factory-sensor-anomaly"
+allowed_branches    = ["main"]

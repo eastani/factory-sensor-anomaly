@@ -81,5 +81,17 @@ logs/
 # Streamlit
 .streamlit/secrets.toml
 
+# Terraform
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+backend.hcl
+!backend.hcl.example
+crash.log
+crash.*.log
+
 # OS
 Thumbs.db

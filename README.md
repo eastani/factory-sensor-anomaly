@@ -128,7 +128,8 @@ sequenceDiagram
 | 1  | MVP — Postgres + FastAPI + Streamlit on docker-compose | ✅ done |
 | 1.6 | MLOps polish — /metrics, model card, drift primitives, SKAB eval | ✅ done |
 | 1.7 | Multi-channel features + STL residual scoring (closes ADR-0002) | 📋 planned |
-| 2  | IaC (Terraform) + CI/CD + cloud deploy (AWS or Azure) | 📋 planned |
+| 2A | IaC (Terraform) + OIDC-only CI/CD + AWS App Runner deploy | ✅ code in place ([ADR-0005](docs/adr/0005-cloud-architecture.md)) |
+| 2B | Azure Container Apps parallel deployment | 📋 next |
 | 3  | Image-based anomaly microservice (PyTorch + async queue) | 📋 planned |
 | 4  | Demo polish — live URL, demo video, public Grafana board | 📋 partial |
 
@@ -172,8 +173,22 @@ make train                       # train a fresh baseline IF on synthetic data
 make model-card                  # regenerate docs/model-cards/baseline.md
 make eval-skab                   # clone SKAB on first run, evaluate, write report
 make demo-preview                # regenerate docs/assets/dashboard-preview.png
+make tf-fmt                      # terraform fmt -recursive infra/
+make tf-validate-aws             # terraform validate infra/aws/
+make cloud-down-aws              # terraform destroy the AWS app stack
 make help                        # all targets with descriptions
 ```
+
+### Deploy to AWS
+
+See [`infra/README.md`](infra/README.md) for the **root-user safety warning** and step-by-step setup. Summary:
+
+1. Lock down the AWS root user (MFA, no access keys) and create an admin IAM user.
+2. `cd infra/bootstrap-aws && terraform apply` — one-time setup creates the OIDC provider, state backend, and GitHub deploy role.
+3. Paste the role ARN into the GitHub secret `AWS_DEPLOY_ROLE_ARN`; set `TF_STATE_BUCKET`, `TF_STATE_LOCK_TABLE`, `BILLING_ALARM_EMAIL`.
+4. Push to `main` — [`.github/workflows/deploy-aws.yml`](.github/workflows/deploy-aws.yml) builds, pushes to ECR, runs `terraform apply`, and smoke-tests `/healthz`.
+
+Estimated steady-state cost: **~$40/month** (App Runner $25 + RDS `db.t4g.micro` $13 + ECR negligible). Tear down with `make cloud-down-aws` when the demo is over.
 
 ## Repository tour
 

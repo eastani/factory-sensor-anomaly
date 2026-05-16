@@ -1,0 +1,6 @@
+# Copy to terraform.tfvars and fill in real values.
+
+aws_region   = "ap-northeast-1"
+project_name = "factory-sensor-anomaly"
+image_tag    = "latest"
+alarm_email  = "you@example.com"

@@ -62,6 +62,15 @@ stack-up:  ## docker compose up the full stack (build + detach).
 stack-down:  ## docker compose down.
 	docker compose down
 
+tf-fmt:  ## terraform fmt -recursive on infra/.
+	terraform fmt -recursive infra/
+
+tf-validate-aws:  ## terraform validate the AWS stack.
+	cd infra/aws && terraform validate
+
+cloud-down-aws:  ## terraform destroy the AWS app stack (DOES NOT touch the bootstrap stack).
+	cd infra/aws && terraform destroy
+
 pre-commit-install:  ## Install pre-commit git hooks.
 	uv run pre-commit install
 
