@@ -1,6 +1,6 @@
 output "ecr_repository_url" {
   description = "ECR image URI to push to."
-  value       = aws_ecr_repository.api.repository_url
+  value       = data.aws_ecr_repository.api.repository_url
 }
 
 output "api_service_url" {

@@ -183,3 +183,40 @@ resource "aws_iam_role_policy" "deploy" {
   role   = aws_iam_role.github_deploy.id
   policy = data.aws_iam_policy_document.deploy.json
 }
+
+# ----- ECR --------------------------------------------------------------------
+# Lives in bootstrap (not the app stack) because chicken-and-egg: CI must be
+# able to push an image to ECR before the app stack's terraform apply runs
+# (App Runner pulls *during* apply, so the image must already exist).
+
+resource "aws_ecr_repository" "api" {
+  name                 = var.project_name
+  image_tag_mutability = "MUTABLE"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+
+  encryption_configuration {
+    encryption_type = "AES256"
+  }
+}
+
+resource "aws_ecr_lifecycle_policy" "api" {
+  repository = aws_ecr_repository.api.name
+
+  policy = jsonencode({
+    rules = [
+      {
+        rulePriority = 1
+        description  = "Keep the most recent 10 images."
+        selection = {
+          tagStatus   = "any"
+          countType   = "imageCountMoreThan"
+          countNumber = 10
+        }
+        action = { type = "expire" }
+      }
+    ]
+  })
+}

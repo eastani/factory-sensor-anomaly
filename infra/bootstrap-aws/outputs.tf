@@ -17,3 +17,8 @@ output "aws_region" {
   description = "Region for the application stack to reuse."
   value       = var.aws_region
 }
+
+output "ecr_repository_url" {
+  description = "ECR image URI for CI to push to."
+  value       = aws_ecr_repository.api.repository_url
+}

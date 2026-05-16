@@ -22,38 +22,10 @@ data "aws_subnets" "default" {
   }
 }
 
-# ----- ECR --------------------------------------------------------------------
-
-resource "aws_ecr_repository" "api" {
-  name                 = var.project_name
-  image_tag_mutability = "MUTABLE"
-
-  image_scanning_configuration {
-    scan_on_push = true
-  }
-
-  encryption_configuration {
-    encryption_type = "AES256"
-  }
-}
-
-resource "aws_ecr_lifecycle_policy" "api" {
-  repository = aws_ecr_repository.api.name
-
-  policy = jsonencode({
-    rules = [
-      {
-        rulePriority = 1
-        description  = "Keep the most recent 10 images."
-        selection = {
-          tagStatus   = "any"
-          countType   = "imageCountMoreThan"
-          countNumber = 10
-        }
-        action = { type = "expire" }
-      }
-    ]
-  })
+# ECR is managed by the bootstrap stack so it exists before any CI run can
+# push an image. We just look it up here.
+data "aws_ecr_repository" "api" {
+  name = var.project_name
 }
 
 # ----- RDS --------------------------------------------------------------------

@@ -71,7 +71,7 @@ resource "aws_apprunner_service" "api" {
     }
 
     image_repository {
-      image_identifier      = "${aws_ecr_repository.api.repository_url}:${var.image_tag}"
+      image_identifier      = "${data.aws_ecr_repository.api.repository_url}:${var.image_tag}"
       image_repository_type = "ECR"
 
       image_configuration {
