@@ -24,6 +24,12 @@ from factory_anomaly.db import AnomalyResult, SensorReading
 from factory_anomaly.logging_config import get_logger
 from factory_anomaly.ml import AnomalyDetector
 from factory_anomaly.ml.features import make_rolling_features
+from factory_anomaly.observability import (
+    INFERENCE_DURATION,
+    INFERENCE_SCORE,
+    INFERENCES_TOTAL,
+    INGEST_ROWS_TOTAL,
+)
 
 router = APIRouter()
 log = get_logger(__name__)
@@ -80,6 +86,7 @@ def ingest_readings(
     ]
     session.add_all(rows)
     session.flush()
+    INGEST_ROWS_TOTAL.inc(len(rows))
     log.info("ingest", machine_id=payload.machine_id, count=len(rows), first_ts=rows[0].timestamp)
     return IngestResponse(inserted=len(rows))
 
@@ -166,8 +173,17 @@ def infer(
     rows = list(reversed(rows))
     values = np.asarray([r.value for r in rows], dtype=float)
     features = make_rolling_features(values, window=window).to_numpy()
-    score = float(detector.score(features)[0])
-    is_anomaly = bool(detector.predict(features)[0])
+    model_version = detector.metadata.model_version
+
+    with INFERENCE_DURATION.labels(model_version=model_version).time():
+        score = float(detector.score(features)[0])
+        is_anomaly = bool(detector.predict(features)[0])
+
+    INFERENCES_TOTAL.labels(
+        model_version=model_version,
+        is_anomaly=str(is_anomaly).lower(),
+    ).inc()
+    INFERENCE_SCORE.labels(model_version=model_version).observe(score)
 
     result = AnomalyResult(
         timestamp=datetime.now(UTC),

@@ -19,12 +19,18 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from starlette.responses import Response
 
 from factory_anomaly.api.routes import router
 from factory_anomaly.config import get_api_settings, get_database_settings
 from factory_anomaly.db.session import create_engine_from_settings, create_session_factory
 from factory_anomaly.logging_config import configure_logging, get_logger
 from factory_anomaly.ml import AnomalyDetector, SklearnVersionMismatchError
+from factory_anomaly.observability import (
+    MODEL_LOADED,
+    metrics_response,
+    register_metrics_middleware,
+)
 
 log = get_logger(__name__)
 
@@ -44,6 +50,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     try:
         detector = AnomalyDetector.load(api.model_path)
         app.state.detector = detector
+        MODEL_LOADED.labels(model_version=detector.metadata.model_version).set(1)
         log.info(
             "startup.model_loaded",
             path=str(api.model_path),
@@ -52,6 +59,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         )
     except (FileNotFoundError, SklearnVersionMismatchError) as exc:
         app.state.detector = None
+        MODEL_LOADED.labels(model_version="none").set(0)
         log.warning(
             "startup.model_unavailable",
             path=str(api.model_path),
@@ -78,6 +86,12 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
     app.include_router(router)
+    register_metrics_middleware(app)
+
+    @app.get("/metrics", include_in_schema=False)
+    def metrics() -> Response:
+        return metrics_response()
+
     return app
 
 

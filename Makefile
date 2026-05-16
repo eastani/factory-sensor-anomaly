@@ -44,6 +44,21 @@ db-reset: db-down db-up  ## Recreate the database from scratch.
 	@echo "Waiting for Postgres..." && sleep 3
 	uv run alembic upgrade head
 
+train:  ## Train the baseline Isolation Forest on synthetic data.
+	uv run python scripts/train_baseline.py
+
+model-card:  ## (Re-)generate docs/model-cards/baseline.md from the latest artifact.
+	uv run python scripts/generate_model_card.py
+
+eval-skab:  ## Download SKAB on first run and evaluate the baseline detector against it.
+	uv run python scripts/evaluate_skab.py
+
+stack-up:  ## docker compose up the full stack (build + detach).
+	docker compose up -d --build
+
+stack-down:  ## docker compose down.
+	docker compose down
+
 pre-commit-install:  ## Install pre-commit git hooks.
 	uv run pre-commit install
 

@@ -42,12 +42,12 @@ flowchart LR
 | -1 | Domain & dataset selection (ADRs) | ✅ done |
 | 0  | Quality baseline (uv, Ruff, mypy, pytest, pre-commit) | ✅ done |
 | 1  | MVP — Postgres + FastAPI + Streamlit on docker-compose | ✅ done |
-| 1.5 | MLOps polish (model card, drift hooks, /metrics) | 📋 planned |
+| 1.6 | MLOps polish — /metrics, model card, drift primitives, SKAB eval | ✅ done |
 | 2  | IaC (Terraform) + CI/CD + cloud deploy (AWS or Azure) | 📋 planned |
 | 3  | Image-based anomaly microservice (PyTorch + async queue) | 📋 planned |
 | 4  | Demo polish (README GIF, live URL, architecture diagram) | 📋 planned |
 
-See [`docs/adr/`](docs/adr/) for architectural decisions.
+See [`docs/adr/`](docs/adr/) for architectural decisions, [`docs/model-cards/baseline.md`](docs/model-cards/baseline.md) for the live model card, and [`docs/evaluation/baseline-skab.md`](docs/evaluation/baseline-skab.md) for the honest evaluation on real SKAB data.
 
 ## Quickstart
 
