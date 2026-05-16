@@ -1,0 +1,42 @@
+# Source control / IDE
+.git/
+.github/
+.idea/
+.vscode/
+
+# Caches / builds
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage*
+htmlcov/
+dist/
+build/
+*.egg-info/
+
+# Virtual environments (we rebuild inside the image)
+.venv/
+venv/
+
+# Data and models (model is rebuilt inside the image; data is never shipped)
+data/
+models/
+mlruns/
+
+# Local-only files
+.env
+.env.local
+*.log
+.DS_Store
+docker-compose.override.yml
+
+# Tests live in the image only if explicitly needed; we don't run them here.
+tests/
+
+# Docs aren't needed at runtime.
+docs/
+
+# Notebooks
+notebooks/

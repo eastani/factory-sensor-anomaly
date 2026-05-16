@@ -41,8 +41,8 @@ flowchart LR
 |-------|-------|--------|
 | -1 | Domain & dataset selection (ADRs) | ✅ done |
 | 0  | Quality baseline (uv, Ruff, mypy, pytest, pre-commit) | ✅ done |
-| 1  | MVP — Postgres + FastAPI + Streamlit on docker-compose | ⏳ next |
-| 1.5 | Observability + MLOps basics (structured logs, model versioning) | 📋 planned |
+| 1  | MVP — Postgres + FastAPI + Streamlit on docker-compose | ✅ done |
+| 1.5 | MLOps polish (model card, drift hooks, /metrics) | 📋 planned |
 | 2  | IaC (Terraform) + CI/CD + cloud deploy (AWS or Azure) | 📋 planned |
 | 3  | Image-based anomaly microservice (PyTorch + async queue) | 📋 planned |
 | 4  | Demo polish (README GIF, live URL, architecture diagram) | 📋 planned |
@@ -51,16 +51,35 @@ See [`docs/adr/`](docs/adr/) for architectural decisions.
 
 ## Quickstart
 
-```bash
-# 1. Install uv (https://docs.astral.sh/uv/)
-brew install uv         # macOS
+### Run the full stack (recommended)
 
-# 2. Bootstrap the dev environment
+```bash
+# Brings up db + api + dashboard + ingester + scorer.
+docker compose up -d --build
+
+# Open the dashboard at http://localhost:8501
+# OpenAPI/Swagger at http://localhost:8000/docs
+# Watch the inference loop run:
+docker compose logs -f scorer
+```
+
+What you get:
+
+| Service | URL | What it does |
+|---------|-----|--------------|
+| `dashboard` | http://localhost:8501 | Streamlit UI — sensor chart + anomaly markers + score history |
+| `api` | http://localhost:8000 | FastAPI; `/healthz`, `/ingest`, `/infer`, `/readings`, `/anomalies` |
+| `db` | localhost:5432 | Postgres 16 with the Alembic schema applied |
+| `ingester` | — | Posts a fresh synthetic batch to `/ingest` every 10s (see [ADR-0004](docs/adr/0004-inference-trigger-final.md)) |
+| `scorer` | — | Calls `/infer` every 5s, persisting anomaly results |
+
+### Run quality gates locally
+
+```bash
+brew install uv                 # macOS; see https://docs.astral.sh/uv/
 make install
 make pre-commit-install
-
-# 3. Run quality gates
-make check              # lint + typecheck + test
+make check                      # lint + typecheck + test
 ```
 
 ## Repository layout

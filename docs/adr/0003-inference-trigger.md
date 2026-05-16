@@ -1,6 +1,6 @@
 # ADR-0003: Inference trigger strategy
 
-- **Status:** Provisional — final decision deferred to Phase 1.5
+- **Status:** Superseded by [ADR-0004](0004-inference-trigger-final.md) — kept for context.
 - **Date:** 2026-05-16
 - **Deciders:** Naoya Higashitani
 

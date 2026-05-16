@@ -1,3 +1,16 @@
+x-app-build: &app-build
+  context: .
+  dockerfile: Dockerfile
+
+x-app-env: &app-env
+  POSTGRES_USER: ${POSTGRES_USER:-anomaly}
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+  POSTGRES_DB: ${POSTGRES_DB:-anomaly}
+  POSTGRES_HOST: db
+  POSTGRES_PORT: 5432
+  API_BASE_URL: http://api:8000
+  LOG_LEVEL: ${LOG_LEVEL:-INFO}
+
 services:
   db:
     image: postgres:16-alpine
@@ -12,10 +25,102 @@ services:
     volumes:
       - db-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-anomaly} -d ${POSTGRES_DB:-anomaly}"]
+      test:
+        ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-anomaly} -d ${POSTGRES_DB:-anomaly}"]
       interval: 5s
       timeout: 5s
       retries: 5
+
+  api:
+    build: *app-build
+    image: factory-sensor-anomaly:local
+    container_name: anomaly-api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      <<: *app-env
+    ports:
+      - "${API_PORT:-8000}:8000"
+    entrypoint: ["./entrypoint-api.sh"]
+    command:
+      ["uvicorn", "factory_anomaly.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request,sys; r=urllib.request.urlopen('http://localhost:8000/healthz',timeout=2); sys.exit(0 if r.status==200 else 1)",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  dashboard:
+    image: factory-sensor-anomaly:local
+    container_name: anomaly-dashboard
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      <<: *app-env
+    ports:
+      - "${STREAMLIT_PORT:-8501}:8501"
+    command:
+      [
+        "streamlit",
+        "run",
+        "dashboard/app.py",
+        "--server.address=0.0.0.0",
+        "--server.port=8501",
+        "--server.headless=true",
+        "--browser.gatherUsageStats=false",
+      ]
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request,sys; r=urllib.request.urlopen('http://localhost:8501/_stcore/health',timeout=2); sys.exit(0 if r.status==200 else 1)",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  ingester:
+    image: factory-sensor-anomaly:local
+    container_name: anomaly-ingester
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      <<: *app-env
+      INGESTER_MACHINE_ID: ${INGESTER_MACHINE_ID:-pump-001}
+      INGESTER_SENSOR_NAME: ${INGESTER_SENSOR_NAME:-sensor_00}
+      INGESTER_INTERVAL_SECONDS: ${INGESTER_INTERVAL_SECONDS:-10}
+      INGESTER_BATCH_SIZE: ${INGESTER_BATCH_SIZE:-30}
+    command: ["python", "-m", "factory_anomaly.workers.ingester"]
+
+  scorer:
+    image: factory-sensor-anomaly:local
+    container_name: anomaly-scorer
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      <<: *app-env
+      SCORER_MACHINE_ID: ${SCORER_MACHINE_ID:-pump-001}
+      SCORER_SENSOR_NAME: ${SCORER_SENSOR_NAME:-sensor_00}
+      SCORER_INTERVAL_SECONDS: ${SCORER_INTERVAL_SECONDS:-5}
+    command: ["python", "-m", "factory_anomaly.workers.scorer"]
 
 volumes:
   db-data:
