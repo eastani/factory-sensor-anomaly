@@ -148,15 +148,14 @@ data "aws_iam_policy_document" "deploy" {
     ]
   }
 
+  # iam:PassedToService doesn't always evaluate before App Runner CreateService
+  # — restrict by target role ARN pattern instead.
   statement {
-    sid       = "IamPassToAppRunner"
-    actions   = ["iam:PassRole"]
-    resources = ["*"]
-    condition {
-      test     = "StringEquals"
-      variable = "iam:PassedToService"
-      values   = ["build.apprunner.amazonaws.com", "tasks.apprunner.amazonaws.com"]
-    }
+    sid     = "IamPassToAppRunner"
+    actions = ["iam:PassRole"]
+    resources = [
+      "arn:aws:iam::*:role/${var.project_name}-apprunner-*",
+    ]
   }
 
   statement {
