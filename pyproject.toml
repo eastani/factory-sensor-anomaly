@@ -27,6 +27,7 @@ dependencies = [
   "prometheus-client>=0.21",
   "scipy>=1.13",
   "matplotlib>=3.9",
+  "statsmodels>=0.14",
 ]
 
 [dependency-groups]
@@ -133,6 +134,7 @@ module = [
   "plotly.*",
   "scipy.*",
   "prometheus_client.*",
+  "statsmodels.*",
 ]
 ignore_missing_imports = true
 

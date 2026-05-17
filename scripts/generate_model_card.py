@@ -69,14 +69,17 @@ fairly on; SKAB is the honest test.
 ## Limitations
 
 - **Periodicity confound:** raw Isolation Forest tends to flag periodic
-  peaks as anomalies and to miss anomalies that coincide with peaks. The
-  STL-decomposition wrapper promised in ADR-0002 is *not yet implemented* —
-  scheduled for Phase 1.7. Until then, expect false positives on strongly
-  cyclic signals.
+  peaks as anomalies. The STL-residual variant promised in ADR-0002 was
+  *implemented* in Phase 1.7 (`StlAnomalyDetector`) and is the right
+  default on signals with strong cyclic structure (the synthetic preview
+  in the README is one such case). Honest evaluation on SKAB showed it
+  does not improve over the raw IF on that dataset — signal selection
+  mattered more there. See `docs/evaluation/baseline-skab.md`.
 - **Single-channel:** features are computed per sensor. Cross-sensor
-  correlation information is unused.
+  correlation information is unused — slated for Phase 1.8 (multivariate
+  features stacking accelerometer + current + pressure).
 - **No drift gate:** see `factory_anomaly.ml.drift` for the foundation
-  functions — the wiring into a periodic drift service is a Phase 1.7 task.
+  functions — wiring into a periodic drift service is a future task.
 
 ## Reproducing
 
