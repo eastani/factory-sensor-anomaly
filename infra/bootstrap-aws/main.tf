@@ -105,47 +105,47 @@ resource "aws_iam_role" "github_deploy" {
   max_session_duration = 3600
 }
 
-# Permissions the deploy role needs:
-#   - ECR push (image build/push)
-#   - App Runner update (deploy)
-#   - S3 + DynamoDB on the state backend
-#   - RDS describe (so terraform plan can read outputs)
+# Permission strategy:
+#
+# The role is gated by the OIDC trust policy (only GitHub Actions from
+# refs/heads/main on this exact repo can assume it). On the *outbound* side
+# we attach PowerUserAccess — which covers everything ec2/rds/ecr/apprunner/
+# secretsmanager/sns/cloudwatch the stack needs — plus a narrow inline policy
+# for IAM operations the deploy must perform (creating App Runner roles and
+# passing them to App Runner) and for the Terraform state backend.
+#
+# This is a deliberate trade-off for a personal-portfolio project:
+# convenience over a hand-tuned per-action allow-list. Phase 3 should narrow
+# this to a custom managed policy once the resource set is stable.
+
+resource "aws_iam_role_policy_attachment" "deploy_poweruser" {
+  role       = aws_iam_role.github_deploy.name
+  policy_arn = "arn:aws:iam::aws:policy/PowerUserAccess"
+}
+
 data "aws_iam_policy_document" "deploy" {
   statement {
-    sid = "EcrPushPull"
+    sid = "IamForAppRunnerRoles"
     actions = [
-      "ecr:GetAuthorizationToken",
-      "ecr:BatchCheckLayerAvailability",
-      "ecr:GetDownloadUrlForLayer",
-      "ecr:BatchGetImage",
-      "ecr:InitiateLayerUpload",
-      "ecr:UploadLayerPart",
-      "ecr:CompleteLayerUpload",
-      "ecr:PutImage",
-      "ecr:DescribeRepositories",
-      "ecr:DescribeImages",
-      "ecr:CreateRepository",
+      "iam:CreateRole",
+      "iam:GetRole",
+      "iam:DeleteRole",
+      "iam:UpdateRole",
+      "iam:UpdateAssumeRolePolicy",
+      "iam:TagRole",
+      "iam:UntagRole",
+      "iam:ListRoleTags",
+      "iam:AttachRolePolicy",
+      "iam:DetachRolePolicy",
+      "iam:ListAttachedRolePolicies",
+      "iam:PutRolePolicy",
+      "iam:GetRolePolicy",
+      "iam:DeleteRolePolicy",
+      "iam:ListRolePolicies",
     ]
-    resources = ["*"]
-  }
-
-  statement {
-    sid = "AppRunnerDeploy"
-    actions = [
-      "apprunner:CreateService",
-      "apprunner:DescribeService",
-      "apprunner:ListServices",
-      "apprunner:StartDeployment",
-      "apprunner:UpdateService",
-      "apprunner:DeleteService",
-      "apprunner:TagResource",
-      "apprunner:UntagResource",
-      "apprunner:ListTagsForResource",
-      "apprunner:CreateVpcConnector",
-      "apprunner:DescribeVpcConnector",
-      "apprunner:DeleteVpcConnector",
+    resources = [
+      "arn:aws:iam::*:role/${var.project_name}-apprunner-*",
     ]
-    resources = ["*"]
   }
 
   statement {
@@ -157,12 +157,6 @@ data "aws_iam_policy_document" "deploy" {
       variable = "iam:PassedToService"
       values   = ["build.apprunner.amazonaws.com", "tasks.apprunner.amazonaws.com"]
     }
-  }
-
-  statement {
-    sid       = "RdsReadOnly"
-    actions   = ["rds:Describe*", "rds:ListTagsForResource"]
-    resources = ["*"]
   }
 
   statement {
