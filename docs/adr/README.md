@@ -9,3 +9,4 @@ Lightweight ADRs in the [MADR](https://adr.github.io/madr/) style. Each captures
 | [0003](0003-inference-trigger.md) | Inference trigger strategy | Superseded by 0004 |
 | [0004](0004-inference-trigger-final.md) | Inference trigger — final decision (ingester + scorer sidecars) | Accepted |
 | [0005](0005-cloud-architecture.md) | Cloud architecture (AWS primary, Azure secondary) | Accepted |
+| [0006](0006-image-anomaly-modality.md) | Image anomaly modality — PatchCore, hybrid library, sidecar integration | Accepted |
