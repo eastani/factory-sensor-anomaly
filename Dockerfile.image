@@ -49,24 +49,30 @@ WORKDIR /app
 
 COPY --from=builder /app/.venv /app/.venv
 COPY --chown=anomaly:anomaly src ./src
+COPY --chown=anomaly:anomaly scripts ./scripts
 COPY --chown=anomaly:anomaly pyproject.toml ./
 
 # Pre-download ResNet50 weights so runtime has no network dependency. Cached
 # under /app/.torch via the TORCH_HOME env above. Done as anomaly user so
 # the resulting cache is owned correctly.
-RUN mkdir -p /app/.torch && chown -R anomaly:anomaly /app/.torch /app
+RUN mkdir -p /app/.torch /app/models && chown -R anomaly:anomaly /app/.torch /app
 
 USER anomaly
 
 RUN python -c "from torchvision.models import resnet50, ResNet50_Weights; resnet50(weights=ResNet50_Weights.IMAGENET1K_V2)"
 
-ENV IMAGE_API_HOST=0.0.0.0 \
-    IMAGE_API_PORT=8001 \
+# Bake a stub PatchCore bank trained on noise so docker-compose / cloud
+# runtimes have something to load on first boot. Replace with a real bank
+# (Phase 3.3 ``make image-train``) by mounting ``/app/models`` from the host.
+RUN python scripts/train_image_stub.py \
+        --out /app/models/image_bank.joblib \
+        --version "stub-baked-$(date -u +%Y%m%d-%H%M%S)"
+
+ENV IMAGE_API_MODEL_PATH=/app/models/image_bank.joblib \
+    IMAGE_API_INPUT_SIZE=224 \
+    IMAGE_API_TORCH_NUM_THREADS=2 \
     LOG_LEVEL=INFO
 
 EXPOSE 8001
 
-# API entrypoint lands in a follow-up commit (Phase 3 step 2). For now this
-# image builds and the module can be imported; the FastAPI app will be
-# wired here once `factory_anomaly.image.api` exists.
-CMD ["python", "-c", "import factory_anomaly.image; print('image module imported OK')"]
+CMD ["uvicorn", "factory_anomaly.image.api:app", "--host", "0.0.0.0", "--port", "8001"]

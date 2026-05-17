@@ -122,5 +122,58 @@ services:
       SCORER_INTERVAL_SECONDS: ${SCORER_INTERVAL_SECONDS:-5}
     command: ["python", "-m", "factory_anomaly.workers.scorer"]
 
+  # ---------------------------------------------------------------------
+  # Image-anomaly modality (Phase 3.2; see ADR-0006).
+  # Independent Dockerfile.image because torch + torchvision bloat the
+  # shared runtime by ~400MB and the four sensor services do not need them.
+  # ---------------------------------------------------------------------
+  image-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.image
+    image: factory-sensor-anomaly-image:local
+    container_name: anomaly-image-api
+    restart: unless-stopped
+    environment:
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      IMAGE_API_MODEL_PATH: /app/models/image_bank.joblib
+      IMAGE_API_INPUT_SIZE: ${IMAGE_API_INPUT_SIZE:-224}
+      IMAGE_API_TORCH_NUM_THREADS: ${IMAGE_API_TORCH_NUM_THREADS:-2}
+    ports:
+      - "${IMAGE_API_PORT:-8001}:8001"
+    # NOTE: the image bakes a stub bank trained on noise. To swap in a real
+    # bank, mount a host path here:
+    #   volumes:
+    #     - ./models:/app/models:ro
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request,sys; r=urllib.request.urlopen('http://localhost:8001/healthz',timeout=2); sys.exit(0 if r.status==200 else 1)",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      # Backbone + bank load takes longer than the sensor API (ResNet50
+      # weights + memory bank deserialisation), so give it 30s headroom.
+      start_period: 30s
+
+  image-ingester:
+    image: factory-sensor-anomaly-image:local
+    container_name: anomaly-image-ingester
+    restart: unless-stopped
+    depends_on:
+      image-api:
+        condition: service_healthy
+    environment:
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      IMAGE_API_BASE_URL: http://image-api:8001
+      IMAGE_INGESTER_SOURCE: ${IMAGE_INGESTER_SOURCE:-}
+      IMAGE_INGESTER_INTERVAL_SECONDS: ${IMAGE_INGESTER_INTERVAL_SECONDS:-15}
+      IMAGE_INGESTER_FALLBACK_SIZE: ${IMAGE_INGESTER_FALLBACK_SIZE:-64}
+    command: ["python", "-m", "factory_anomaly.image.workers"]
+
 volumes:
   db-data:
