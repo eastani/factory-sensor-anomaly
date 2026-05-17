@@ -60,8 +60,17 @@ jobs:
       - name: Ruff lint (image module + its tests)
         run: uv run ruff check --output-format=github src/factory_anomaly/image tests/image
 
-      - name: Mypy (image module + its tests)
-        run: uv run mypy src/factory_anomaly/image tests/image
+      # Tests under tests/image add scripts/ to sys.path at runtime to import
+      # download_mvtec / evaluate_image. Include those scripts here so mypy
+      # can resolve the imports during static analysis too.
+      - name: Mypy (image module + its tests + image scripts)
+        run: |
+          uv run mypy \
+            src/factory_anomaly/image \
+            tests/image \
+            scripts/download_mvtec.py \
+            scripts/evaluate_image.py \
+            scripts/train_image_stub.py
 
       - name: Pytest (image module only; no testcontainers needed)
         run: uv run pytest tests/image --no-cov
