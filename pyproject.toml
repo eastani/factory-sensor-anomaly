@@ -40,6 +40,13 @@ dev = [
   "testcontainers[postgres]>=4.8",
   "pandas-stubs>=2.2",
 ]
+# Phase 3 — image anomaly. Isolated group so the default sync stays light
+# (torch CPU wheel is ~250MB, ResNet50 weights ~100MB). See ADR-0006.
+image = [
+  "torch>=2.4,<3",
+  "torchvision>=0.19,<1",
+  "pillow>=10.4",
+]
 
 [build-system]
 requires = ["hatchling"]
@@ -47,6 +54,20 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/factory_anomaly"]
+
+# ---------------------------------------------------------------------------
+# uv — force torch / torchvision to the CPU-only PyTorch index. Without this,
+# Linux locks pull ~3GB of nvidia-cuda wheels (CUDA is the upstream default).
+# Inference for PatchCore on this project's scale runs fine on CPU.
+# ---------------------------------------------------------------------------
+[tool.uv.sources]
+torch = [{ index = "pytorch-cpu" }]
+torchvision = [{ index = "pytorch-cpu" }]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
 
 # ---------------------------------------------------------------------------
 # Ruff — lint + format (replaces Black + Flake8 + isort)
@@ -98,10 +119,18 @@ disallow_incomplete_defs = true
 no_implicit_optional = true
 show_error_codes = true
 files = ["src", "tests", "alembic", "dashboard", "scripts"]
+# NOTE: src/factory_anomaly/image/ and tests/image/ require the optional
+# `image` dependency group (torch). The default `mypy` invocation in CI
+# adds `--exclude` for them; the dedicated `image-quality` CI job
+# type-checks them explicitly. (The exclude lives in CI rather than here
+# because mypy applies pyproject `exclude` even to files passed on the
+# command line, which would block the image-quality job.)
 exclude = ["alembic/versions/"]
 
 [[tool.mypy.overrides]]
-module = ["tests.*"]
+# mypy `*` matches a single dot-separated component, so nested test packages
+# (e.g. tests.image.test_*) need their own pattern.
+module = ["tests.*", "tests.image.*"]
 disallow_untyped_defs = false
 
 # ---------------------------------------------------------------------------
@@ -135,12 +164,18 @@ module = [
   "scipy.*",
   "prometheus_client.*",
   "statsmodels.*",
+  "torch.*",
+  "torchvision.*",
+  "PIL.*",
 ]
 ignore_missing_imports = true
 
 [tool.coverage.run]
 branch = true
 source = ["src/factory_anomaly"]
+# image/ requires the optional `image` dep group (torch). Excluded from the
+# default coverage run; the image-quality CI job tests it without coverage.
+omit = ["src/factory_anomaly/image/*"]
 
 [tool.coverage.report]
 exclude_lines = [

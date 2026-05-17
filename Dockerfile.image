@@ -1,0 +1,72 @@
+# syntax=docker/dockerfile:1.7
+# ---------------------------------------------------------------------------
+# Image-anomaly service (Phase 3, ADR-0006).
+#
+# Independent image because the torch + torchvision wheel set adds ~400MB on
+# top of the main runtime, and the main Dockerfile is shared by 4 services
+# (api / dashboard / ingester / scorer) that do not need torch.
+#
+# ResNet50 ImageNet weights are baked in at build time so the runtime does
+# not need network access on first request.
+# ---------------------------------------------------------------------------
+
+# ---- Stage 1: build venv with the image dependency group ----
+FROM python:3.12-slim AS builder
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    UV_LINK_MODE=copy \
+    UV_COMPILE_BYTECODE=1
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=ghcr.io/astral-sh/uv:0.5.4 /uv /uvx /usr/local/bin/
+
+WORKDIR /app
+
+COPY pyproject.toml uv.lock README.md ./
+COPY src ./src
+# `--group image` pulls torch CPU + torchvision (see [tool.uv.sources] in
+# pyproject.toml — CUDA wheels are explicitly excluded).
+RUN uv sync --frozen --no-dev --group image
+
+# ---- Stage 2: runtime with backbone weights baked in ----
+FROM python:3.12-slim AS runtime
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PATH="/app/.venv/bin:$PATH" \
+    TORCH_HOME=/app/.torch
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libgomp1 \
+    && rm -rf /var/lib/apt/lists/* \
+    && useradd --create-home --uid 1000 anomaly
+
+WORKDIR /app
+
+COPY --from=builder /app/.venv /app/.venv
+COPY --chown=anomaly:anomaly src ./src
+COPY --chown=anomaly:anomaly pyproject.toml ./
+
+# Pre-download ResNet50 weights so runtime has no network dependency. Cached
+# under /app/.torch via the TORCH_HOME env above. Done as anomaly user so
+# the resulting cache is owned correctly.
+RUN mkdir -p /app/.torch && chown -R anomaly:anomaly /app/.torch /app
+
+USER anomaly
+
+RUN python -c "from torchvision.models import resnet50, ResNet50_Weights; resnet50(weights=ResNet50_Weights.IMAGENET1K_V2)"
+
+ENV IMAGE_API_HOST=0.0.0.0 \
+    IMAGE_API_PORT=8001 \
+    LOG_LEVEL=INFO
+
+EXPOSE 8001
+
+# API entrypoint lands in a follow-up commit (Phase 3 step 2). For now this
+# image builds and the module can be imported; the FastAPI app will be
+# wired here once `factory_anomaly.image.api` exists.
+CMD ["python", "-c", "import factory_anomaly.image; print('image module imported OK')"]
