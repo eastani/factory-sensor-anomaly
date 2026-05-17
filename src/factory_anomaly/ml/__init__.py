@@ -5,7 +5,10 @@ from factory_anomaly.ml.detector import (
     ModelMetadata,
     SklearnVersionMismatchError,
 )
-from factory_anomaly.ml.features import make_rolling_features
+from factory_anomaly.ml.features import (
+    make_multivariate_rolling_features,
+    make_rolling_features,
+)
 from factory_anomaly.ml.stl_detector import StlAnomalyDetector
 
 __all__ = [
@@ -13,5 +16,6 @@ __all__ = [
     "ModelMetadata",
     "SklearnVersionMismatchError",
     "StlAnomalyDetector",
+    "make_multivariate_rolling_features",
     "make_rolling_features",
 ]

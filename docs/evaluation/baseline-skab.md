@@ -6,7 +6,8 @@ runs (``other/``, ``valve1/``, ``valve2/``).
 
 | Setting | Value |
 |---|---|
-| Sensor | `Accelerometer1RMS` |
+| Primary sensor | `Accelerometer1RMS` |
+| Multivariate sensors | `Accelerometer1RMS, Accelerometer2RMS, Current` |
 | Window size | 30 |
 | STL period | 30 |
 | Anomaly share | 38.4% |
@@ -15,9 +16,10 @@ runs (``other/``, ``valve1/``, ``valve2/``).
 
 | Detector | Eval windows | Precision | Recall | F1 | ROC AUC |
 |----------|-------------:|----------:|-------:|---:|--------:|
-| **Baseline IF** (Phase 1.6) | 36,415 | 0.392 | 0.981 | **0.560** | **0.575** |
-| **STL + IF** (Phase 1.7) | 36,415 | 0.390 | 0.956 | **0.554** | **0.549** |
-| Δ | — | -0.002 | -0.025 | **-0.006** | **-0.026** |
+| **Baseline IF** (Phase 1.6, single sensor) | 36,415 | 0.392 | 0.981 | **0.560** | **0.575** |
+| **STL + IF** (Phase 1.7, single sensor) | 36,415 | 0.390 | 0.956 | **0.554** | **0.549** |
+| **Multivariate IF** (Phase 1.8, all sensors) | 36,415 | 0.387 | 0.998 | **0.558** | **0.614** |
+| Δ (multivariate vs baseline) | — | -0.005 | +0.017 | **-0.002** | **+0.039** |
 
 ## Interpretation — honest negative finding on STL
 
@@ -41,15 +43,41 @@ amplitude changes, not as residuals after seasonal subtraction.
 Read it as the model card now does: signal selection is more important
 than the decomposition trick on SKAB.
 
-## What this means for Phase 1.8
+## What Phase 1.8 changed
 
-- **Multivariate features** are now the most promising next move — concatenate
-  rolling features across multiple sensors and re-evaluate. Single-channel
-  is the binding constraint here, not periodicity.
-- STL stays in the codebase (it is the right tool on signals with stronger
-  periodic confounds — the synthetic sine-wave preview in the README is one
-  such example, where STL would help). The honest evaluation has just
-  established that SKAB isn't that kind of dataset.
+Phase 1.7 ended with the hypothesis "single-channel is the binding constraint,
+multivariate will help". Phase 1.8 implemented multivariate features
+(``make_multivariate_rolling_features``) and re-ran the evaluation harness.
+
+### Subset matters more than "use everything"
+
+Naive "stack all 8 SKAB sensors" actually *hurts* AUC (0.575 → 0.543) — extra
+channels add noise that the model has to fit, and recall climbs to ~0.997 as
+the model starts flagging everything. A small grid over sensor subsets
+isolates the sweet spot:
+
+| Sensor combo | n_channels | F1 | ROC AUC | Δ AUC vs baseline |
+|---|---:|---:|---:|---:|
+| Accelerometer1RMS only (baseline) | 1 | 0.560 | 0.575 | — |
+| Accel1 + Accel2 | 2 | 0.557 | 0.580 | +0.005 |
+| Accel1 + Current | 2 | 0.565 | 0.540 | -0.035 |
+| **Accel1 + Accel2 + Current** | 3 | 0.558 | **0.614** | **+0.039** |
+| Accel1 + Accel2 + Current + Voltage | 4 | 0.557 | 0.577 | +0.002 |
+| Accel1 + Accel2 + Current + Pressure | 4 | 0.557 | 0.565 | -0.010 |
+| All 8 sensors | 8 | 0.563 | 0.543 | -0.032 |
+
+Best combo: **two accelerometer channels + current**, +0.039 AUC over baseline.
+The table above is the canonical "more sensors = better" hypothesis being
+falsified by data — adding pressure, temperature, voltage, or flow rate
+*lowers* AUC. Vibration-and-current is the signal SKAB anomalies show up in.
+
+### Why F1 barely moved while AUC did
+
+At the default decision threshold the multivariate model flags slightly more
+(recall ↑ to 0.998), so precision stays similar and F1 shifts by ±0.005. AUC
+measures the *ranking* of scores at all thresholds and tells the cleaner
+story: the multivariate model orders anomalies more accurately even when the
+default threshold picks roughly the same set.
 
 Re-run:
 

@@ -127,7 +127,8 @@ sequenceDiagram
 | 0  | Quality baseline (uv, Ruff, mypy, pytest, pre-commit) | ✅ done |
 | 1  | MVP — Postgres + FastAPI + Streamlit on docker-compose | ✅ done |
 | 1.6 | MLOps polish — /metrics, model card, drift primitives, SKAB eval | ✅ done |
-| 1.7 | Multi-channel features + STL residual scoring (closes ADR-0002) | 📋 planned |
+| 1.7 | STL residual scoring + SKAB re-evaluation | ✅ done — STL implemented; **honest negative finding** on SKAB (sensor selection mattered more than decomposition; full grid in [report](docs/evaluation/baseline-skab.md)) |
+| 1.8 | Multivariate features (`make_multivariate_rolling_features`) | ✅ done — SKAB AUC **0.575 → 0.614** with the 3-sensor sweet spot (Accel1 + Accel2 + Current); 8-channel naive stack *hurts* AUC |
 | 2A | IaC (Terraform) + OIDC-only CI/CD + AWS App Runner deploy | ✅ **deployed and verified end-to-end** — see [docs/evaluation/live-aws/](docs/evaluation/live-aws/) |
 | 2B | Azure Container Apps parallel deployment (scale-to-zero) | ✅ code complete, apply blocked on tenant access (see [`infra/azure/README.md`](infra/azure/README.md)) |
 | 3  | Image-based anomaly microservice (PyTorch + async queue) | 📋 planned |

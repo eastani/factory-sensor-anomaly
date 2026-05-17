@@ -6,8 +6,10 @@ stream, each window contributes one row with a handful of summary statistics
 gives Isolation Forest enough signal on the kinds of anomalies generated in
 ``factory_anomaly.data.synthetic``.
 
-Multi-channel support: stack per-channel features horizontally — handled by
-the caller, not this module, so the function stays a clean primitive.
+Multivariate support: ``make_multivariate_rolling_features`` stacks per-channel
+features column-wise so a single Isolation Forest can see all sensors at once.
+Used in Phase 1.8 to address the binding constraint identified by Phase 1.7's
+SKAB evaluation (single-channel scoring was the floor, not periodicity).
 """
 
 from __future__ import annotations
@@ -48,3 +50,29 @@ def make_rolling_features(values: np.ndarray, window: int) -> pd.DataFrame:
     ).dropna()
     features["p2p"] = features["max"] - features["min"]
     return features[list(FEATURE_NAMES)]
+
+
+def make_multivariate_rolling_features(
+    channels: dict[str, np.ndarray], window: int
+) -> pd.DataFrame:
+    """Stack per-channel rolling features column-wise.
+
+    All channels must have the same length so the output rows align to the
+    same right-edge timestamps. Column names follow ``<channel>__<feature>``
+    (double underscore) so column-name parsing stays unambiguous even when
+    sensor names contain underscores.
+    """
+    if not channels:
+        raise ValueError("at least one channel required")
+
+    lengths = {len(v) for v in channels.values()}
+    if len(lengths) > 1:
+        raise ValueError(f"all channels must have the same length; got {sorted(lengths)}")
+
+    blocks: list[pd.DataFrame] = []
+    for name, values in channels.items():
+        block = make_rolling_features(values, window=window)
+        block.columns = [f"{name}__{c}" for c in block.columns]
+        blocks.append(block)
+
+    return pd.concat(blocks, axis=1)

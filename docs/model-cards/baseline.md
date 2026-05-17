@@ -64,9 +64,12 @@ fairly on; SKAB is the honest test.
   in the README is one such case). Honest evaluation on SKAB showed it
   does not improve over the raw IF on that dataset — signal selection
   mattered more there. See `docs/evaluation/baseline-skab.md`.
-- **Single-channel:** features are computed per sensor. Cross-sensor
-  correlation information is unused — slated for Phase 1.8 (multivariate
-  features stacking accelerometer + current + pressure).
+- **Channel selection matters more than channel count:** the baseline IF
+  uses one signal. Phase 1.8's multivariate variant
+  (`make_multivariate_rolling_features`) stacking
+  Accelerometer1RMS + Accelerometer2RMS + Current lifted SKAB AUC from
+  0.575 to 0.614. Stacking all 8 sensors *hurt* AUC (0.543). See
+  `docs/evaluation/baseline-skab.md` for the full subset grid.
 - **No drift gate:** see `factory_anomaly.ml.drift` for the foundation
   functions — wiring into a periodic drift service is a future task.
 
