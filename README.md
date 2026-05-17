@@ -129,7 +129,7 @@ sequenceDiagram
 | 1.6 | MLOps polish — /metrics, model card, drift primitives, SKAB eval | ✅ done |
 | 1.7 | Multi-channel features + STL residual scoring (closes ADR-0002) | 📋 planned |
 | 2A | IaC (Terraform) + OIDC-only CI/CD + AWS App Runner deploy | ✅ **deployed and verified end-to-end** — see [docs/evaluation/live-aws/](docs/evaluation/live-aws/) |
-| 2B | Azure Container Apps parallel deployment (scale-to-zero) | ✅ code in place, apply pending |
+| 2B | Azure Container Apps parallel deployment (scale-to-zero) | ✅ code complete, apply blocked on tenant access (see [`infra/azure/README.md`](infra/azure/README.md)) |
 | 3  | Image-based anomaly microservice (PyTorch + async queue) | 📋 planned |
 | 4  | Demo polish — live URL, demo video, public Grafana board | 📋 partial |
 
@@ -184,7 +184,7 @@ make help                        # all targets with descriptions
 | Cloud | Setup guide | Cost (idle) | Workflow | Status |
 |-------|-------------|-------------|----------|--------|
 | AWS (primary) | [`infra/README.md`](infra/README.md) — **read the root-user safety warning** | ~$40/mo (App Runner $25 + RDS $13) | [`deploy-aws.yml`](.github/workflows/deploy-aws.yml) | ✅ end-to-end verified — see [`docs/evaluation/live-aws/`](docs/evaluation/live-aws/) |
-| Azure (secondary) | [`infra/azure/README.md`](infra/azure/README.md) | ~$17/mo (Postgres $12 + ACR $5; Container Apps scales to 0) | [`deploy-azure.yml`](.github/workflows/deploy-azure.yml) | code complete, apply pending |
+| Azure (secondary) | [`infra/azure/README.md`](infra/azure/README.md) | ~$17/mo (Postgres $12 + ACR $5; Container Apps scales to 0) | [`deploy-azure.yml`](.github/workflows/deploy-azure.yml) | code complete; first attempt blocked by `AADSTS5000225` (tenant inactivity); deferred |
 
 Both clouds use OIDC federation — no static credentials in CI. See [ADR-0005](docs/adr/0005-cloud-architecture.md) for the architecture choice. Tear down with `make cloud-down-aws` / `make cloud-down-azure`.
 
