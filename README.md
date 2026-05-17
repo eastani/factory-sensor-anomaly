@@ -39,7 +39,8 @@
 | **UI** | Streamlit dashboard using `st.fragment(run_every=...)` for partial refresh, decoupled API client for testability |
 | **Stack** | 5-service docker-compose (db + api + dashboard + ingester + scorer); single multi-stage image; non-root user |
 | **Observability** | `/metrics` Prometheus endpoint with label-cardinality budgeted counters + histograms |
-| **Honesty** | Real-data evaluation on SKAB ([report](docs/evaluation/baseline-skab.md)) — pipeline works, baseline model under-performs, Phase 1.7 upgrades scheduled |
+| **Honesty (sensor)** | Real-data evaluation on SKAB ([report](docs/evaluation/baseline-skab.md)) — pipeline works, baseline model under-performs, Phase 1.7 upgrades scheduled |
+| **Honesty (image)** | PatchCore on MVTec AD ([report](docs/evaluation/image-baseline.md)) — 0.978 / 0.997 in-domain image AUROC; **cross-category drops below 0.5** — concrete evidence of the per-category-bank constraint, plus a 50–150 ms CPU latency reality check |
 | **Docs** | 4 ADRs documenting non-obvious decisions; auto-generated model card; bilingual JP/EN commit messages |
 
 ## Why this project
@@ -131,10 +132,13 @@ sequenceDiagram
 | 1.8 | Multivariate features (`make_multivariate_rolling_features`) | ✅ done — SKAB AUC **0.575 → 0.614** with the 3-sensor sweet spot (Accel1 + Accel2 + Current); 8-channel naive stack *hurts* AUC |
 | 2A | IaC (Terraform) + OIDC-only CI/CD + AWS App Runner deploy | ✅ **deployed and verified end-to-end** — see [docs/evaluation/live-aws/](docs/evaluation/live-aws/) |
 | 2B | Azure Container Apps parallel deployment (scale-to-zero) | ✅ code complete, apply blocked on tenant access (see [`infra/azure/README.md`](infra/azure/README.md)) |
-| 3  | Image-based anomaly microservice (PyTorch + async queue) | 📋 planned |
+| 3.1 | PatchCore module — coreset + frozen ResNet50 features ([ADR-0006](docs/adr/0006-image-anomaly-modality.md)) | ✅ done |
+| 3.2 | Image FastAPI service + image-ingester sidecar in docker-compose | ✅ done |
+| 3.3 | MVTec evaluation — in-domain ≥ 0.978 AUROC, **cross-category collapses below random** ([report](docs/evaluation/image-baseline.md)) | ✅ done — 2 categories; more blocked on mirror availability |
+| 3.4 | Streamlit heatmap panel | 📋 planned |
 | 4  | Demo polish — live URL, demo video, public Grafana board | 📋 partial |
 
-See [`docs/adr/`](docs/adr/) for architectural decisions, [`docs/model-cards/baseline.md`](docs/model-cards/baseline.md) for the live model card, and [`docs/evaluation/baseline-skab.md`](docs/evaluation/baseline-skab.md) for the honest evaluation on real SKAB data.
+See [`docs/adr/`](docs/adr/) for architectural decisions, [`docs/model-cards/baseline.md`](docs/model-cards/baseline.md) for the live model card, [`docs/evaluation/baseline-skab.md`](docs/evaluation/baseline-skab.md) for the honest sensor evaluation on real SKAB data, and [`docs/evaluation/image-baseline.md`](docs/evaluation/image-baseline.md) for the image-modality evaluation on MVTec AD.
 
 ## Quickstart
 
@@ -173,6 +177,9 @@ make check                       # lint + typecheck + test (95% coverage gate in
 make train                       # train a fresh baseline IF on synthetic data
 make model-card                  # regenerate docs/model-cards/baseline.md
 make eval-skab                   # clone SKAB on first run, evaluate, write report
+make image-download CATEGORY=bottle  # MVTec download (license-gated; see download_mvtec.py docstring)
+make image-train-stub            # synthesise a noise PatchCore bank for docker-compose demos
+make image-evaluate CATEGORIES="capsule metal_nut"  # PatchCore eval; writes docs/evaluation/image-baseline.results.json
 make demo-preview                # regenerate docs/assets/dashboard-preview.png
 make tf-fmt                      # terraform fmt -recursive infra/
 make tf-validate-aws             # terraform validate infra/aws/

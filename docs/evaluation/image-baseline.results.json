@@ -1,0 +1,87 @@
+{
+  "experiments": [
+    {
+      "experiment": "in_domain",
+      "image_auroc": 0.9780614280015956,
+      "latency_ms": {
+        "max": 106.99754100642167,
+        "mean": 49.848663507432455,
+        "n_samples": 132.0,
+        "p50": 48.593812505714595,
+        "p95": 55.70994784720824
+      },
+      "memory_bank_size": 4292,
+      "n_defective": 109,
+      "n_test_images": 132,
+      "n_train_images": 219,
+      "pixel_auroc": 0.9870724858235005,
+      "test_category": "capsule",
+      "train_category": "capsule"
+    },
+    {
+      "experiment": "in_domain",
+      "image_auroc": 0.9970674486803519,
+      "latency_ms": {
+        "max": 691.69658300234,
+        "mean": 125.62221198282002,
+        "n_samples": 115.0,
+        "p50": 116.85949999082368,
+        "p95": 197.2103212974616
+      },
+      "memory_bank_size": 4312,
+      "n_defective": 93,
+      "n_test_images": 115,
+      "n_train_images": 220,
+      "pixel_auroc": 0.985893252169281,
+      "test_category": "metal_nut",
+      "train_category": "metal_nut"
+    },
+    {
+      "experiment": "cross_category",
+      "image_auroc": 0.37878787878787884,
+      "latency_ms": {
+        "max": 1120.654625003226,
+        "mean": 154.16306629473263,
+        "n_samples": 115.0,
+        "p50": 125.2312919968972,
+        "p95": 276.4358748012455
+      },
+      "memory_bank_size": 4292,
+      "n_defective": 93,
+      "n_test_images": 115,
+      "n_train_images": 219,
+      "pixel_auroc": 0.7596831480807711,
+      "test_category": "metal_nut",
+      "train_category": "capsule"
+    },
+    {
+      "experiment": "cross_category",
+      "image_auroc": 0.2919824491424013,
+      "latency_ms": {
+        "max": 279.6482499979902,
+        "mean": 49.85485955341684,
+        "n_samples": 132.0,
+        "p50": 46.320979003212415,
+        "p95": 57.294583148905076
+      },
+      "memory_bank_size": 4312,
+      "n_defective": 109,
+      "n_test_images": 132,
+      "n_train_images": 220,
+      "pixel_auroc": 0.912222735749926,
+      "test_category": "capsule",
+      "train_category": "metal_nut"
+    }
+  ],
+  "meta": {
+    "categories": [
+      "capsule",
+      "metal_nut"
+    ],
+    "coreset_ratio": 0.1,
+    "size": 224,
+    "target_spatial": 14,
+    "torch_version": "2.12.0",
+    "wall_clock_seconds": 701.0
+  }
+}

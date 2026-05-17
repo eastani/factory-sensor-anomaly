@@ -56,10 +56,13 @@ dmypy.json
 secrets/
 
 # Data — never commit raw datasets
+# data/mvtec/ holds MVTec AD (CC BY-NC-SA 4.0) — see ADR-0006 + image LICENSE-NOTICE.md.
 data/raw/
 data/interim/
 data/processed/
 data/external/
+data/mvtec/
+data/skab/
 !data/.gitkeep
 !data/**/.gitkeep
 

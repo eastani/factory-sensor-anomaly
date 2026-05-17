@@ -53,6 +53,15 @@ model-card:  ## (Re-)generate docs/model-cards/baseline.md from the latest artif
 eval-skab:  ## Download SKAB on first run and evaluate the baseline detector against it.
 	uv run python scripts/evaluate_skab.py
 
+image-download:  ## Download MVTec AD categories. Usage: make image-download CATEGORY=bottle
+	uv run python scripts/download_mvtec.py --accept-license --category $(CATEGORY)
+
+image-train-stub:  ## Train a noise-only stub PatchCore bank (used by docker-compose).
+	uv run python scripts/train_image_stub.py --out models/image_bank.joblib --version stub-noise
+
+image-evaluate:  ## Evaluate PatchCore on MVTec categories. Default: bottle cable capsule.
+	uv run python scripts/evaluate_image.py $(if $(CATEGORIES),$(foreach c,$(CATEGORIES),--category $(c)),)
+
 demo-preview:  ## Re-render docs/assets/dashboard-preview.png.
 	uv run python scripts/render_demo_preview.py
 
