@@ -78,7 +78,7 @@ resource "azurerm_container_registry" "main" {
 resource "random_password" "db" {
   length           = 32
   special          = true
-  override_special = "!#$%*-_=+"
+  override_special = "!*-_=+"
 }
 
 resource "azurerm_postgresql_flexible_server" "main" {

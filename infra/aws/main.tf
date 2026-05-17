@@ -31,9 +31,13 @@ data "aws_ecr_repository" "api" {
 # ----- RDS --------------------------------------------------------------------
 
 resource "random_password" "db" {
-  length           = 32
-  special          = true
-  override_special = "!#$%*-_=+"
+  length  = 32
+  special = true
+  # Exclude '%' because Alembic's env.py round-trips the connection URL
+  # through ConfigParser, which interprets '%' as interpolation syntax.
+  # Other characters that would need URL-encoding in the DSN ('/', '@', ':',
+  # '?', '#') are also excluded.
+  override_special = "!*-_=+"
 }
 
 resource "aws_db_subnet_group" "main" {
