@@ -108,13 +108,17 @@ resource "aws_apprunner_service" "api" {
     }
   }
 
+  # Give the app generous startup time: alembic migration + model load + first
+  # uvicorn request can take ~30s on a cold container. unhealthy_threshold 10
+  # means the health check tolerates ~3 minutes before marking the service
+  # unhealthy, which is plenty for a t-shirt-sized RDS warm-up.
   health_check_configuration {
     protocol            = "HTTP"
     path                = "/healthz"
     interval            = 20
-    timeout             = 5
+    timeout             = 10
     healthy_threshold   = 1
-    unhealthy_threshold = 5
+    unhealthy_threshold = 10
   }
 
   depends_on = [

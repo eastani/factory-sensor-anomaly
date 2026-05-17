@@ -74,6 +74,9 @@ ENV API_MODEL_PATH=/app/models/baseline.joblib \
 
 EXPOSE 8000 8501
 
-# No default ENTRYPOINT/CMD: every compose service sets its own command, and
-# the API service additionally sets ``entrypoint: ./entrypoint-api.sh`` so
-# migrations run before uvicorn starts.
+# Default to the API role — migrations then uvicorn. docker-compose overrides
+# both ENTRYPOINT and CMD per service for dashboard / ingester / scorer; cloud
+# runtimes (App Runner / Container Apps) need a real default here or they
+# launch the container with nothing to run and exit immediately.
+ENTRYPOINT ["./entrypoint-api.sh"]
+CMD ["uvicorn", "factory_anomaly.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
