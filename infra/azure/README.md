@@ -3,6 +3,14 @@
 Parallel of the AWS stack ([../aws/](../aws/)). Ships the same image to a
 different cloud so the project can claim genuine multi-cloud experience.
 
+> **Status (2026-05-17):** Terraform code and CI workflow are complete and
+> `terraform validate` clean. The first apply attempt was blocked at
+> `az login` with `AADSTS5000225: This tenant has been blocked due to
+> inactivity` — the fresh-account tenant lifecycle policy hit before any
+> resource could be created. Re-running this stack on a healthy Azure
+> subscription should work as-is; the code mirrors the AWS stack 1:1 and
+> the latter is verified end-to-end.
+
 ## Why Azure was added as the secondary
 
 - **Scale-to-zero is real** on Container Apps Consumption. Steady-state idle
