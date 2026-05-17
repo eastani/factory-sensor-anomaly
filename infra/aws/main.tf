@@ -43,7 +43,7 @@ resource "aws_db_subnet_group" "main" {
 
 resource "aws_security_group" "db" {
   name        = "${var.project_name}-db"
-  description = "Allow inbound Postgres only from App Runner's VPC connector."
+  description = "Allow inbound Postgres only from App Runner VPC connector"
   vpc_id      = data.aws_vpc.default.id
 
   ingress {
@@ -55,7 +55,7 @@ resource "aws_security_group" "db" {
   }
 
   egress {
-    description = "All egress allowed (RDS uses no outbound paths)."
+    description = "All egress allowed RDS uses no outbound paths"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
@@ -65,11 +65,11 @@ resource "aws_security_group" "db" {
 
 resource "aws_security_group" "apprunner_vpc" {
   name        = "${var.project_name}-apprunner"
-  description = "Egress-only group attached to the App Runner VPC connector."
+  description = "Egress-only group attached to the App Runner VPC connector"
   vpc_id      = data.aws_vpc.default.id
 
   egress {
-    description = "All egress."
+    description = "All egress"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
