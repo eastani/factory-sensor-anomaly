@@ -69,3 +69,31 @@ class ApiSettings(BaseSettings):
 @lru_cache(maxsize=1)
 def get_api_settings() -> ApiSettings:
     return ApiSettings()
+
+
+class ImageApiSettings(BaseSettings):
+    """Image-anomaly service settings (Phase 3.2; see ADR-0006).
+
+    Populated from ``IMAGE_API_*`` env vars (note the prefix differs from
+    the sensor API's ``API_*`` so the two configs can coexist in one
+    ``.env`` without ambiguity).
+    """
+
+    model_config = SettingsConfigDict(
+        env_prefix="IMAGE_API_",
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
+    model_path: Path = Field(default=Path("models/image_bank.joblib"))
+    input_size: int = Field(default=224, ge=32)
+    log_level: str = Field(default="INFO")
+    # Cap CPU threads so this service does not starve the sensor stack when
+    # both run in one docker-compose. Override via IMAGE_API_TORCH_NUM_THREADS.
+    torch_num_threads: int = Field(default=2, ge=1)
+
+
+@lru_cache(maxsize=1)
+def get_image_api_settings() -> ImageApiSettings:
+    return ImageApiSettings()

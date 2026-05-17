@@ -10,6 +10,7 @@ importing this package from a context that lacks torch will raise
 service not enabled" error in the calling layer.
 """
 
+from factory_anomaly.image.client import ImageApiClient, ImageApiClientError
 from factory_anomaly.image.coreset import greedy_coreset
 from factory_anomaly.image.detector import (
     PatchCoreDetector,
@@ -19,6 +20,8 @@ from factory_anomaly.image.detector import (
 from factory_anomaly.image.feature_extractor import PatchFeatureExtractor
 
 __all__ = [
+    "ImageApiClient",
+    "ImageApiClientError",
     "PatchCoreDetector",
     "PatchCoreMetadata",
     "PatchCoreVersionMismatchError",

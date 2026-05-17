@@ -76,6 +76,40 @@ MODEL_LOADED = Gauge(
     labelnames=("model_version",),
 )
 
+# ---------------------------------------------------------------------------
+# Image-modality metrics (Phase 3.2; see ADR-0006).
+#
+# Defined in this module rather than under `image/` so a single `/metrics`
+# endpoint can expose both services if they ever coexist, and so the
+# label-cardinality budget is auditable in one place.
+# ---------------------------------------------------------------------------
+
+IMAGE_INFERENCES_TOTAL = Counter(
+    "factory_anomaly_image_inferences_total",
+    "Number of /image/predict calls that produced a result, by model_version.",
+    labelnames=("model_version",),
+)
+
+IMAGE_INFERENCE_DURATION = Histogram(
+    "factory_anomaly_image_inference_duration_seconds",
+    "Time spent scoring a single image, excluding network and decode.",
+    labelnames=("model_version",),
+    buckets=(0.05, 0.1, 0.25, 0.5, 1.0, 2.0, 5.0, 10.0),
+)
+
+IMAGE_INFERENCE_SCORE = Histogram(
+    "factory_anomaly_image_inference_score",
+    "Distribution of image anomaly scores (higher = more anomalous).",
+    labelnames=("model_version",),
+    buckets=(0.0, 0.5, 1.0, 2.0, 5.0, 10.0, 20.0, 50.0, 100.0),
+)
+
+IMAGE_MODEL_LOADED = Gauge(
+    "factory_anomaly_image_model_loaded",
+    "1 if a PatchCore memory bank is loaded into this process, else 0.",
+    labelnames=("model_version",),
+)
+
 
 def status_class(code: int) -> str:
     """Bucket an HTTP status code into a label-friendly class."""
