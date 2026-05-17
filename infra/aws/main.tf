@@ -80,7 +80,7 @@ resource "aws_security_group" "apprunner_vpc" {
 resource "aws_db_instance" "main" {
   identifier                   = var.project_name
   engine                       = "postgres"
-  engine_version               = "16.4"
+  engine_version               = "16.14"
   instance_class               = var.db_instance_class
   allocated_storage            = var.db_allocated_storage_gb
   storage_type                 = "gp3"
