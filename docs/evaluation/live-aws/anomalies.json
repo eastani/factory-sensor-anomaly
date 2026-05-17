@@ -1,0 +1,112 @@
+[
+    {
+        "timestamp": "2026-05-17T00:47:13.956041Z",
+        "machine_id": "pump-001",
+        "window_start": "2026-05-17T00:47:13.136326Z",
+        "window_end": "2026-05-17T00:47:15.036326Z",
+        "score": 0.6503234346124632,
+        "is_anomaly": true,
+        "model_name": "isolation_forest",
+        "model_version": "baked-20260516-235813"
+    },
+    {
+        "timestamp": "2026-05-17T00:47:10.811779Z",
+        "machine_id": "pump-001",
+        "window_start": "2026-05-17T00:47:08.036386Z",
+        "window_end": "2026-05-17T00:47:09.936386Z",
+        "score": 0.5953277088725691,
+        "is_anomaly": true,
+        "model_name": "isolation_forest",
+        "model_version": "baked-20260516-235813"
+    },
+    {
+        "timestamp": "2026-05-17T00:47:07.710565Z",
+        "machine_id": "pump-001",
+        "window_start": "2026-05-17T00:47:08.036386Z",
+        "window_end": "2026-05-17T00:47:09.936386Z",
+        "score": 0.5953277088725691,
+        "is_anomaly": true,
+        "model_name": "isolation_forest",
+        "model_version": "baked-20260516-235813"
+    },
+    {
+        "timestamp": "2026-05-17T00:47:04.624328Z",
+        "machine_id": "pump-001",
+        "window_start": "2026-05-17T00:47:02.940127Z",
+        "window_end": "2026-05-17T00:47:04.840127Z",
+        "score": 0.6647979166391582,
+        "is_anomaly": true,
+        "model_name": "isolation_forest",
+        "model_version": "baked-20260516-235813"
+    },
+    {
+        "timestamp": "2026-05-17T00:47:01.529635Z",
+        "machine_id": "pump-001",
+        "window_start": "2026-05-17T00:47:02.940127Z",
+        "window_end": "2026-05-17T00:47:04.840127Z",
+        "score": 0.6647979166391582,
+        "is_anomaly": true,
+        "model_name": "isolation_forest",
+        "model_version": "baked-20260516-235813"
+    },
+    {
+        "timestamp": "2026-05-17T00:46:58.451213Z",
+        "machine_id": "pump-001",
+        "window_start": "2026-05-17T00:46:57.851580Z",
+        "window_end": "2026-05-17T00:46:59.751580Z",
+        "score": 0.6092373663286715,
+        "is_anomaly": true,
+        "model_name": "isolation_forest",
+        "model_version": "baked-20260516-235813"
+    },
+    {
+        "timestamp": "2026-05-17T00:46:55.379380Z",
+        "machine_id": "pump-001",
+        "window_start": "2026-05-17T00:46:52.732087Z",
+        "window_end": "2026-05-17T00:46:54.632087Z",
+        "score": 0.5529240314159493,
+        "is_anomaly": true,
+        "model_name": "isolation_forest",
+        "model_version": "baked-20260516-235813"
+    },
+    {
+        "timestamp": "2026-05-17T00:46:52.213783Z",
+        "machine_id": "pump-001",
+        "window_start": "2026-05-17T00:46:52.732087Z",
+        "window_end": "2026-05-17T00:46:54.632087Z",
+        "score": 0.5529240314159493,
+        "is_anomaly": true,
+        "model_name": "isolation_forest",
+        "model_version": "baked-20260516-235813"
+    },
+    {
+        "timestamp": "2026-05-17T00:46:49.158533Z",
+        "machine_id": "pump-001",
+        "window_start": "2026-05-17T00:46:47.622152Z",
+        "window_end": "2026-05-17T00:46:49.522152Z",
+        "score": 0.6660964085914358,
+        "is_anomaly": true,
+        "model_name": "isolation_forest",
+        "model_version": "baked-20260516-235813"
+    },
+    {
+        "timestamp": "2026-05-17T00:46:46.019144Z",
+        "machine_id": "pump-001",
+        "window_start": "2026-05-17T00:46:47.622152Z",
+        "window_end": "2026-05-17T00:46:49.522152Z",
+        "score": 0.6660964085914358,
+        "is_anomaly": true,
+        "model_name": "isolation_forest",
+        "model_version": "baked-20260516-235813"
+    },
+    {
+        "timestamp": "2026-05-17T00:46:42.960289Z",
+        "machine_id": "pump-001",
+        "window_start": "2026-05-17T00:46:42.486249Z",
+        "window_end": "2026-05-17T00:46:44.386249Z",
+        "score": 0.4216650363596158,
+        "is_anomaly": false,
+        "model_name": "isolation_forest",
+        "model_version": "baked-20260516-235813"
+    }
+]

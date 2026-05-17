@@ -1,0 +1,62 @@
+[
+    {
+        "timestamp": "2026-05-17T00:47:30.362513Z",
+        "machine_id": "pump-001",
+        "sensor_name": "sensor_00",
+        "value": -0.6450144248639104
+    },
+    {
+        "timestamp": "2026-05-17T00:47:30.262513Z",
+        "machine_id": "pump-001",
+        "sensor_name": "sensor_00",
+        "value": -0.16656484885635298
+    },
+    {
+        "timestamp": "2026-05-17T00:47:30.162513Z",
+        "machine_id": "pump-001",
+        "sensor_name": "sensor_00",
+        "value": 0.29895393473124393
+    },
+    {
+        "timestamp": "2026-05-17T00:47:30.062513Z",
+        "machine_id": "pump-001",
+        "sensor_name": "sensor_00",
+        "value": 0.5003247349527719
+    },
+    {
+        "timestamp": "2026-05-17T00:47:29.962513Z",
+        "machine_id": "pump-001",
+        "sensor_name": "sensor_00",
+        "value": 0.9503237151653201
+    },
+    {
+        "timestamp": "2026-05-17T00:47:29.862513Z",
+        "machine_id": "pump-001",
+        "sensor_name": "sensor_00",
+        "value": 5.042770522112429
+    },
+    {
+        "timestamp": "2026-05-17T00:47:29.762513Z",
+        "machine_id": "pump-001",
+        "sensor_name": "sensor_00",
+        "value": 0.8984045252803522
+    },
+    {
+        "timestamp": "2026-05-17T00:47:29.662513Z",
+        "machine_id": "pump-001",
+        "sensor_name": "sensor_00",
+        "value": 0.7800159719690787
+    },
+    {
+        "timestamp": "2026-05-17T00:47:29.562513Z",
+        "machine_id": "pump-001",
+        "sensor_name": "sensor_00",
+        "value": 0.33682242647731114
+    },
+    {
+        "timestamp": "2026-05-17T00:47:29.462513Z",
+        "machine_id": "pump-001",
+        "sensor_name": "sensor_00",
+        "value": 0.10399431155294821
+    }
+]

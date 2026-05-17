@@ -1,0 +1,109 @@
+# HELP factory_anomaly_http_requests_total Count of HTTP requests handled, labelled by route template and status class.
+factory_anomaly_http_requests_total{method="GET",route="/healthz",status_class="2xx"} 22.0
+factory_anomaly_http_requests_total{method="POST",route="/ingest",status_class="2xx"} 11.0
+factory_anomaly_http_requests_total{method="GET",route="/readings/{machine_id}",status_class="2xx"} 1.0
+factory_anomaly_http_requests_total{method="POST",route="/infer",status_class="2xx"} 11.0
+# HELP factory_anomaly_http_requests_created Count of HTTP requests handled, labelled by route template and status class.
+factory_anomaly_http_requests_created{method="GET",route="/healthz",status_class="2xx"} 1.7789785495579953e+09
+factory_anomaly_http_requests_created{method="POST",route="/ingest",status_class="2xx"} 1.7789787108862684e+09
+factory_anomaly_http_requests_created{method="GET",route="/readings/{machine_id}",status_class="2xx"} 1.7789787110139825e+09
+factory_anomaly_http_requests_created{method="POST",route="/infer",status_class="2xx"} 1.7789788029660969e+09
+# HELP factory_anomaly_http_request_duration_seconds Wall-clock latency of HTTP requests.
+factory_anomaly_http_request_duration_seconds_bucket{le="0.005",method="GET",route="/healthz"} 0.0
+factory_anomaly_http_request_duration_seconds_bucket{le="0.01",method="GET",route="/healthz"} 21.0
+factory_anomaly_http_request_duration_seconds_bucket{le="0.025",method="GET",route="/healthz"} 21.0
+factory_anomaly_http_request_duration_seconds_bucket{le="0.05",method="GET",route="/healthz"} 21.0
+factory_anomaly_http_request_duration_seconds_bucket{le="0.1",method="GET",route="/healthz"} 22.0
+factory_anomaly_http_request_duration_seconds_bucket{le="0.25",method="GET",route="/healthz"} 22.0
+factory_anomaly_http_request_duration_seconds_bucket{le="0.5",method="GET",route="/healthz"} 22.0
+factory_anomaly_http_request_duration_seconds_bucket{le="1.0",method="GET",route="/healthz"} 22.0
+factory_anomaly_http_request_duration_seconds_bucket{le="2.5",method="GET",route="/healthz"} 22.0
+factory_anomaly_http_request_duration_seconds_bucket{le="5.0",method="GET",route="/healthz"} 22.0
+factory_anomaly_http_request_duration_seconds_bucket{le="+Inf",method="GET",route="/healthz"} 22.0
+factory_anomaly_http_request_duration_seconds_count{method="GET",route="/healthz"} 22.0
+factory_anomaly_http_request_duration_seconds_sum{method="GET",route="/healthz"} 0.2333860819999245
+factory_anomaly_http_request_duration_seconds_bucket{le="0.005",method="POST",route="/ingest"} 0.0
+factory_anomaly_http_request_duration_seconds_bucket{le="0.01",method="POST",route="/ingest"} 0.0
+factory_anomaly_http_request_duration_seconds_bucket{le="0.025",method="POST",route="/ingest"} 11.0
+factory_anomaly_http_request_duration_seconds_bucket{le="0.05",method="POST",route="/ingest"} 11.0
+factory_anomaly_http_request_duration_seconds_bucket{le="0.1",method="POST",route="/ingest"} 11.0
+factory_anomaly_http_request_duration_seconds_bucket{le="0.25",method="POST",route="/ingest"} 11.0
+factory_anomaly_http_request_duration_seconds_bucket{le="0.5",method="POST",route="/ingest"} 11.0
+factory_anomaly_http_request_duration_seconds_bucket{le="1.0",method="POST",route="/ingest"} 11.0
+factory_anomaly_http_request_duration_seconds_bucket{le="2.5",method="POST",route="/ingest"} 11.0
+factory_anomaly_http_request_duration_seconds_bucket{le="5.0",method="POST",route="/ingest"} 11.0
+factory_anomaly_http_request_duration_seconds_bucket{le="+Inf",method="POST",route="/ingest"} 11.0
+factory_anomaly_http_request_duration_seconds_count{method="POST",route="/ingest"} 11.0
+factory_anomaly_http_request_duration_seconds_sum{method="POST",route="/ingest"} 0.15757219199997508
+factory_anomaly_http_request_duration_seconds_bucket{le="0.005",method="GET",route="/readings/{machine_id}"} 0.0
+factory_anomaly_http_request_duration_seconds_bucket{le="0.01",method="GET",route="/readings/{machine_id}"} 0.0
+factory_anomaly_http_request_duration_seconds_bucket{le="0.025",method="GET",route="/readings/{machine_id}"} 1.0
+factory_anomaly_http_request_duration_seconds_bucket{le="0.05",method="GET",route="/readings/{machine_id}"} 1.0
+factory_anomaly_http_request_duration_seconds_bucket{le="0.1",method="GET",route="/readings/{machine_id}"} 1.0
+factory_anomaly_http_request_duration_seconds_bucket{le="0.25",method="GET",route="/readings/{machine_id}"} 1.0
+factory_anomaly_http_request_duration_seconds_bucket{le="0.5",method="GET",route="/readings/{machine_id}"} 1.0
+factory_anomaly_http_request_duration_seconds_bucket{le="1.0",method="GET",route="/readings/{machine_id}"} 1.0
+factory_anomaly_http_request_duration_seconds_bucket{le="2.5",method="GET",route="/readings/{machine_id}"} 1.0
+factory_anomaly_http_request_duration_seconds_bucket{le="5.0",method="GET",route="/readings/{machine_id}"} 1.0
+factory_anomaly_http_request_duration_seconds_bucket{le="+Inf",method="GET",route="/readings/{machine_id}"} 1.0
+factory_anomaly_http_request_duration_seconds_count{method="GET",route="/readings/{machine_id}"} 1.0
+factory_anomaly_http_request_duration_seconds_sum{method="GET",route="/readings/{machine_id}"} 0.011340953999990688
+factory_anomaly_http_request_duration_seconds_bucket{le="0.005",method="POST",route="/infer"} 0.0
+factory_anomaly_http_request_duration_seconds_bucket{le="0.01",method="POST",route="/infer"} 0.0
+factory_anomaly_http_request_duration_seconds_bucket{le="0.025",method="POST",route="/infer"} 0.0
+factory_anomaly_http_request_duration_seconds_bucket{le="0.05",method="POST",route="/infer"} 6.0
+factory_anomaly_http_request_duration_seconds_bucket{le="0.1",method="POST",route="/infer"} 11.0
+factory_anomaly_http_request_duration_seconds_bucket{le="0.25",method="POST",route="/infer"} 11.0
+factory_anomaly_http_request_duration_seconds_bucket{le="0.5",method="POST",route="/infer"} 11.0
+factory_anomaly_http_request_duration_seconds_bucket{le="1.0",method="POST",route="/infer"} 11.0
+factory_anomaly_http_request_duration_seconds_bucket{le="2.5",method="POST",route="/infer"} 11.0
+factory_anomaly_http_request_duration_seconds_bucket{le="5.0",method="POST",route="/infer"} 11.0
+factory_anomaly_http_request_duration_seconds_bucket{le="+Inf",method="POST",route="/infer"} 11.0
+factory_anomaly_http_request_duration_seconds_count{method="POST",route="/infer"} 11.0
+factory_anomaly_http_request_duration_seconds_sum{method="POST",route="/infer"} 0.556077048000077
+# HELP factory_anomaly_http_request_duration_seconds_created Wall-clock latency of HTTP requests.
+factory_anomaly_http_request_duration_seconds_created{method="GET",route="/healthz"} 1.7789785495580356e+09
+factory_anomaly_http_request_duration_seconds_created{method="POST",route="/ingest"} 1.7789787108863032e+09
+factory_anomaly_http_request_duration_seconds_created{method="GET",route="/readings/{machine_id}"} 1.7789787110140114e+09
+factory_anomaly_http_request_duration_seconds_created{method="POST",route="/infer"} 1.7789788029661293e+09
+# HELP factory_anomaly_inferences_total Number of /infer calls that produced a result, by model_version + anomaly verdict.
+factory_anomaly_inferences_total{is_anomaly="false",model_version="baked-20260516-235813"} 1.0
+factory_anomaly_inferences_total{is_anomaly="true",model_version="baked-20260516-235813"} 10.0
+# HELP factory_anomaly_inferences_created Number of /infer calls that produced a result, by model_version + anomaly verdict.
+factory_anomaly_inferences_created{is_anomaly="false",model_version="baked-20260516-235813"} 1.778978802960222e+09
+factory_anomaly_inferences_created{is_anomaly="true",model_version="baked-20260516-235813"} 1.7789788060191226e+09
+# HELP factory_anomaly_inference_duration_seconds Time spent inside /infer, excluding network and DB round-trip.
+factory_anomaly_inference_duration_seconds_bucket{le="0.005",model_version="baked-20260516-235813"} 0.0
+factory_anomaly_inference_duration_seconds_bucket{le="0.01",model_version="baked-20260516-235813"} 0.0
+factory_anomaly_inference_duration_seconds_bucket{le="0.025",model_version="baked-20260516-235813"} 10.0
+factory_anomaly_inference_duration_seconds_bucket{le="0.05",model_version="baked-20260516-235813"} 11.0
+factory_anomaly_inference_duration_seconds_bucket{le="0.1",model_version="baked-20260516-235813"} 11.0
+factory_anomaly_inference_duration_seconds_bucket{le="0.25",model_version="baked-20260516-235813"} 11.0
+factory_anomaly_inference_duration_seconds_bucket{le="0.5",model_version="baked-20260516-235813"} 11.0
+factory_anomaly_inference_duration_seconds_bucket{le="+Inf",model_version="baked-20260516-235813"} 11.0
+factory_anomaly_inference_duration_seconds_count{model_version="baked-20260516-235813"} 11.0
+factory_anomaly_inference_duration_seconds_sum{model_version="baked-20260516-235813"} 0.21796914299994796
+# HELP factory_anomaly_inference_duration_seconds_created Time spent inside /infer, excluding network and DB round-trip.
+factory_anomaly_inference_duration_seconds_created{model_version="baked-20260516-235813"} 1.7789788029424977e+09
+# HELP factory_anomaly_inference_score Distribution of anomaly scores returned by /infer (higher = more anomalous).
+factory_anomaly_inference_score_bucket{le="-0.5",model_version="baked-20260516-235813"} 0.0
+factory_anomaly_inference_score_bucket{le="-0.25",model_version="baked-20260516-235813"} 0.0
+factory_anomaly_inference_score_bucket{le="-0.1",model_version="baked-20260516-235813"} 0.0
+factory_anomaly_inference_score_bucket{le="0.0",model_version="baked-20260516-235813"} 0.0
+factory_anomaly_inference_score_bucket{le="0.05",model_version="baked-20260516-235813"} 0.0
+factory_anomaly_inference_score_bucket{le="0.1",model_version="baked-20260516-235813"} 0.0
+factory_anomaly_inference_score_bucket{le="0.15",model_version="baked-20260516-235813"} 0.0
+factory_anomaly_inference_score_bucket{le="0.2",model_version="baked-20260516-235813"} 0.0
+factory_anomaly_inference_score_bucket{le="0.3",model_version="baked-20260516-235813"} 0.0
+factory_anomaly_inference_score_bucket{le="0.5",model_version="baked-20260516-235813"} 1.0
+factory_anomaly_inference_score_bucket{le="1.0",model_version="baked-20260516-235813"} 11.0
+factory_anomaly_inference_score_bucket{le="+Inf",model_version="baked-20260516-235813"} 11.0
+factory_anomaly_inference_score_count{model_version="baked-20260516-235813"} 11.0
+# HELP factory_anomaly_inference_score_created Distribution of anomaly scores returned by /infer (higher = more anomalous).
+factory_anomaly_inference_score_created{model_version="baked-20260516-235813"} 1.7789788029602492e+09
+# HELP factory_anomaly_ingest_rows_total Total sensor rows accepted by /ingest.
+factory_anomaly_ingest_rows_total 401.0
+# HELP factory_anomaly_ingest_rows_created Total sensor rows accepted by /ingest.
+factory_anomaly_ingest_rows_created 1.7789785480796196e+09
+# HELP factory_anomaly_model_loaded 1 if a model artifact is loaded into this process, else 0.
+factory_anomaly_model_loaded{model_version="baked-20260516-235813"} 1.0
