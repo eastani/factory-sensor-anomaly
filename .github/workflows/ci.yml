@@ -25,8 +25,8 @@ jobs:
       - name: Set up Python
         run: uv python install 3.12
 
-      - name: Sync dependencies
-        run: uv sync --all-groups --frozen
+      - name: Sync dependencies (default — no image group; see ADR-0006)
+        run: uv sync --group dev --frozen
 
       - name: Ruff lint
         run: uv run ruff check --output-format=github .
@@ -34,11 +34,37 @@ jobs:
       - name: Ruff format check
         run: uv run ruff format --check .
 
-      - name: Mypy
-        run: uv run mypy
+      - name: Mypy (image module excluded; covered by image-quality job)
+        run: uv run mypy --exclude '(src/factory_anomaly/image|tests/image)'
 
       - name: Pytest (unit + integration via testcontainers)
-        run: uv run pytest --cov-fail-under=70
+        run: uv run pytest --cov-fail-under=70 --ignore=tests/image
+
+  image-quality:
+    name: Image module — lint, typecheck, test (PatchCore / torch)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install 3.12
+
+      - name: Sync dependencies (dev + image group; torch CPU only)
+        run: uv sync --group dev --group image --frozen
+
+      - name: Ruff lint (image module + its tests)
+        run: uv run ruff check --output-format=github src/factory_anomaly/image tests/image
+
+      - name: Mypy (image module + its tests)
+        run: uv run mypy src/factory_anomaly/image tests/image
+
+      - name: Pytest (image module only; no testcontainers needed)
+        run: uv run pytest tests/image --no-cov
 
   secrets:
     name: Secret scan
