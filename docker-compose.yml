@@ -68,6 +68,10 @@ services:
         condition: service_healthy
     environment:
       <<: *app-env
+      # Phase 3.4 — dashboard talks to the image-anomaly service over HTTP.
+      # Not a hard dependency: if image-api is down, the dashboard's
+      # image panel shows a warning but sensor panels keep working.
+      IMAGE_API_BASE_URL: http://image-api:8001
     ports:
       - "${STREAMLIT_PORT:-8501}:8501"
     command:

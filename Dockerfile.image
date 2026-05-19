@@ -50,6 +50,10 @@ WORKDIR /app
 COPY --from=builder /app/.venv /app/.venv
 COPY --chown=anomaly:anomaly src ./src
 COPY --chown=anomaly:anomaly scripts ./scripts
+# Bundled synthetic demo images (Phase 3.4) — used both as the dashboard's
+# pre-canned demo gallery AND as the training set for the baked stub bank,
+# so demo predictions produce visually meaningful heatmaps.
+COPY --chown=anomaly:anomaly docs/assets/demo-images ./docs/assets/demo-images
 COPY --chown=anomaly:anomaly pyproject.toml ./
 
 # Pre-download ResNet50 weights so runtime has no network dependency. Cached
@@ -61,12 +65,14 @@ USER anomaly
 
 RUN python -c "from torchvision.models import resnet50, ResNet50_Weights; resnet50(weights=ResNet50_Weights.IMAGENET1K_V2)"
 
-# Bake a stub PatchCore bank trained on noise so docker-compose / cloud
-# runtimes have something to load on first boot. Replace with a real bank
-# (Phase 3.3 ``make image-train``) by mounting ``/app/models`` from the host.
+# Bake a stub PatchCore bank trained on the bundled demo plates (Phase 3.4).
+# Falls back to random noise if the directory is missing — keeps the build
+# robust if someone removes the demo asset folder. Replace with a real
+# MVTec-trained bank by mounting it over /app/models/.
 RUN python scripts/train_image_stub.py \
         --out /app/models/image_bank.joblib \
-        --version "stub-baked-$(date -u +%Y%m%d-%H%M%S)"
+        --version "stub-demo-$(date -u +%Y%m%d-%H%M%S)" \
+        --images-dir docs/assets/demo-images/train
 
 ENV IMAGE_API_MODEL_PATH=/app/models/image_bank.joblib \
     IMAGE_API_INPUT_SIZE=224 \

@@ -135,7 +135,7 @@ sequenceDiagram
 | 3.1 | PatchCore module — coreset + frozen ResNet50 features ([ADR-0006](docs/adr/0006-image-anomaly-modality.md)) | ✅ done |
 | 3.2 | Image FastAPI service + image-ingester sidecar in docker-compose | ✅ done |
 | 3.3 | MVTec evaluation — in-domain ≥ 0.978 AUROC, **cross-category collapses below random** ([report](docs/evaluation/image-baseline.md)) | ✅ done — 2 categories; more blocked on mirror availability |
-| 3.4 | Streamlit heatmap panel | 📋 planned |
+| 3.4 | Streamlit heatmap panel — 3-panel viz (input · heatmap · overlay), bundled synthetic demo images, dashboard stays torch-free | ✅ done |
 | 4  | Demo polish — live URL, demo video, public Grafana board | 📋 partial |
 
 See [`docs/adr/`](docs/adr/) for architectural decisions, [`docs/model-cards/baseline.md`](docs/model-cards/baseline.md) for the live model card, [`docs/evaluation/baseline-skab.md`](docs/evaluation/baseline-skab.md) for the honest sensor evaluation on real SKAB data, and [`docs/evaluation/image-baseline.md`](docs/evaluation/image-baseline.md) for the image-modality evaluation on MVTec AD.
@@ -156,11 +156,13 @@ What you get:
 
 | Service | URL | What it does |
 |---------|-----|--------------|
-| `dashboard` | http://localhost:8501 | Streamlit UI — sensor chart + anomaly markers + score history |
+| `dashboard` | http://localhost:8501 | Streamlit UI — sensor chart + anomaly markers + score history + **image anomaly panel** (Phase 3.4: 3-panel input/heatmap/overlay, bundled demo plates or upload) |
 | `api` | http://localhost:8000 | FastAPI; `/healthz`, `/ingest`, `/infer`, `/readings`, `/anomalies`, `/metrics` |
+| `image-api` | http://localhost:8001 | PatchCore FastAPI service; `/healthz`, `/image/predict`, `/metrics`. Built from `Dockerfile.image` with a baked stub bank trained on bundled demo plates (Phase 3.4) |
 | `db` | localhost:5432 | Postgres 16 with the Alembic schema applied |
 | `ingester` | — | Posts a fresh synthetic batch to `/ingest` every 10s (ADR-0004) |
 | `scorer` | — | Calls `/infer` every 5s, persisting anomaly results (ADR-0004) |
+| `image-ingester` | — | Posts a demo image to `/image/predict` every 15s ([ADR-0006](docs/adr/0006-image-anomaly-modality.md)) |
 
 ### Local development
 
@@ -178,8 +180,9 @@ make train                       # train a fresh baseline IF on synthetic data
 make model-card                  # regenerate docs/model-cards/baseline.md
 make eval-skab                   # clone SKAB on first run, evaluate, write report
 make image-download CATEGORY=bottle  # MVTec download (license-gated; see download_mvtec.py docstring)
-make image-train-stub            # synthesise a noise PatchCore bank for docker-compose demos
+make image-train-stub            # train a tiny demo PatchCore bank from docs/assets/demo-images
 make image-evaluate CATEGORIES="capsule metal_nut"  # PatchCore eval; writes docs/evaluation/image-baseline.results.json
+uv run python scripts/generate_demo_images.py  # regenerate docs/assets/demo-images/* (deterministic)
 make demo-preview                # regenerate docs/assets/dashboard-preview.png
 make tf-fmt                      # terraform fmt -recursive infra/
 make tf-validate-aws             # terraform validate infra/aws/

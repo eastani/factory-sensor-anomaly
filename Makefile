@@ -56,8 +56,11 @@ eval-skab:  ## Download SKAB on first run and evaluate the baseline detector aga
 image-download:  ## Download MVTec AD categories. Usage: make image-download CATEGORY=bottle
 	uv run python scripts/download_mvtec.py --accept-license --category $(CATEGORY)
 
-image-train-stub:  ## Train a noise-only stub PatchCore bank (used by docker-compose).
-	uv run python scripts/train_image_stub.py --out models/image_bank.joblib --version stub-noise
+image-train-stub:  ## Train a tiny PatchCore bank from docs/assets/demo-images (used by docker-compose + dashboard demo).
+	uv run python scripts/train_image_stub.py \
+		--out models/image_bank.joblib \
+		--version stub-demo \
+		--images-dir docs/assets/demo-images/train
 
 image-evaluate:  ## Evaluate PatchCore on MVTec categories. Default: bottle cable capsule.
 	uv run python scripts/evaluate_image.py $(if $(CATEGORIES),$(foreach c,$(CATEGORIES),--category $(c)),)
